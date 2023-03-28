@@ -1,0 +1,14 @@
+//
+// Created by Luke Martin on 2023-03-27.
+//
+
+#ifndef WAVECOLLAPSESEDOKUSOLVER_TESTING_H
+#define WAVECOLLAPSESEDOKUSOLVER_TESTING_H
+
+
+class testing {
+
+};
+
+
+#endif //WAVECOLLAPSESEDOKUSOLVER_TESTING_H
