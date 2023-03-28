@@ -2,7 +2,7 @@
 // Created by Luke Martin on 2023-03-27.
 //
 
-#include "main.h"
+#include "SedokuTable.h"
 #include<iostream>
 #include<fstream>
 #include<vector>

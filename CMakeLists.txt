@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(.)
 
 add_executable(WaveCollapseSedokuSolver
-        main.cpp
-        main.h)
+        SedokuTable.cpp
+        SedokuTable.h)
