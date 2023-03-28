@@ -21,7 +21,7 @@ class SudokuTable {
         SudokuTable(std::ifstream &file);
 
     private:
-        bool verifyTL(TileList &t) const; // TODO: add in tests to ensure that the current index is not in the adjacencies.
+        bool verifyTL(TileList &t) const;
         TileList populateNewTileList();
         TileList populateNewTileList(std::map<int, int> &presetValues); // Overloaded version that handles presets
         std::vector<int> findBoxIndexes(int &index) const;
@@ -36,6 +36,9 @@ class SudokuTable {
 
         // ----- verifyTLSuite ----- //
         FRIEND_TEST(verifyTLSuite, afterInvalidValueChangeToTableEnsureDeath);
+
+        // ----- findBoxIndexesSuite ----- //
+        FRIEND_TEST(findBoxIndexesSuite, givenBaseTableEnsureCorrectBoxIndexes);
 
         // ----- findRowIndexesSuite ----- //
         FRIEND_TEST(findRowIndexesSuite, givenBaseTableEnsureCorrectRowIndexes);

@@ -4,6 +4,8 @@
 #include "SudokuTable.h"
 #include "gtest/gtest.h"
 #include <iostream>
+#include <cstdlib>
+#include <algorithm>
 
 
 // ----- defaultCtorSuite ----- //
@@ -17,6 +19,26 @@ TEST (verifyTLSuite, afterInvalidValueChangeToTableEnsureDeath) {
     SudokuTable st;
     st.table.at(0).value = 2;
     ASSERT_FALSE(st.verifyTL(st.table));
+}
+
+// ----- findBoxIndexesSuite ----- //
+TEST (findBoxIndexesSuite, givenBaseTableEnsureCorrectBoxIndexes) {
+    SudokuTable st;
+    for (int tile = 0; tile < 81; tile++) {
+        int row = (tile - (tile % 9)) / 9;
+        int targetTileRow = row < 3 ? 0 : (row < 6 ? 3 : 6);
+        int col = tile % 9;
+        int targetTileCol = col < 3 ? 0 : (col < 6 ? 3 : 6);
+        for (auto &boxIt : st.table.at(tile).adjacencies.at(0)) {
+            ASSERT_TRUE(boxIt != tile);
+            int boxItRow = (boxIt - (boxIt % 9)) / 9;
+            int targetBoxItRow = boxItRow < 3 ? 0 : (boxItRow < 6 ? 3 : 6);
+            ASSERT_TRUE(targetTileRow == targetBoxItRow);
+            int boxItCol = boxIt % 9;
+            int targetBoxItCol = boxItCol < 3 ? 0 : (boxItCol < 6 ? 3 : 6);
+            ASSERT_TRUE(targetTileCol == targetBoxItCol);
+        }
+    }
 }
 
 // ----- findRowIndexesSuite ----- //
