@@ -15,10 +15,10 @@ struct Tile {
 };
 typedef std::vector<Tile> TileList;
 
-class SedokuTable {
+class SudokuTable {
     public:
-        SedokuTable();
-        SedokuTable(std::ifstream &file);
+        SudokuTable();
+        SudokuTable(std::ifstream &file);
 
     private:
         bool verifyTL(TileList &t) const;

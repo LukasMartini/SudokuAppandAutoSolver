@@ -2,21 +2,21 @@
 // Created by Luke Martin on 2023-03-27.
 //
 
-#include "SedokuTable.h"
+#include "SudokuTable.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cassert> // TODO: find a better way to handle conditions than this (throw errors probably)
 
-SedokuTable::SedokuTable() {
-    TileList table = SedokuTable::populateNewTileList();
+SudokuTable::SudokuTable() {
+    TileList table = SudokuTable::populateNewTileList();
 }
 
-SedokuTable::SedokuTable(std::ifstream &file) {
+SudokuTable::SudokuTable(std::ifstream &file) {
 
 }
 
-bool SedokuTable::verifyTL(TileList &t) const {
+bool SudokuTable::verifyTL(TileList &t) const {
     if (t.size() != 81) {return false;}
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
         if ((it->value == -1 || it->possibilities.size() == 0) && it->isSet) {return false;}
@@ -25,11 +25,11 @@ bool SedokuTable::verifyTL(TileList &t) const {
     return true;
 }
 
-std::vector<int> SedokuTable::findBoxIndexes(int &index) {}
-std::vector<int> SedokuTable::findRowIndexes(int &index) {}
-std::vector<int> SedokuTable::findColIndexes(int &index) {}
+std::vector<int> SudokuTable::findBoxIndexes(int &index) {}
+std::vector<int> SudokuTable::findRowIndexes(int &index) {}
+std::vector<int> SudokuTable::findColIndexes(int &index) {}
 
-TileList SedokuTable::populateNewTileList() {
+TileList SudokuTable::populateNewTileList() {
     // Preconditions:
     // Implementation:
     TileList newList;
@@ -37,16 +37,16 @@ TileList SedokuTable::populateNewTileList() {
         Tile newTile = {
                 -1,
                 {1,2,3,4,5,6,7,8,9},
-                {SedokuTable::findBoxIndexes(i), SedokuTable::findRowIndexes(i), SedokuTable::findColIndexes(i)},
+                {SudokuTable::findBoxIndexes(i), SudokuTable::findRowIndexes(i), SudokuTable::findColIndexes(i)},
                 false
         };
     }
     // Postconditions:
-    assert(SedokuTable::verifyTL(newList));
+    assert(SudokuTable::verifyTL(newList));
 
     return newList;
 }
 
-TileList SedokuTable::populateNewTileList(std::map<int, int> &presetValues) {
+TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
 
 }
