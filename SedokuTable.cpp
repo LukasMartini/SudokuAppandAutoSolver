@@ -3,10 +3,10 @@
 //
 
 #include "SedokuTable.h"
-#include<iostream>
-#include<fstream>
-#include<vector>
-#include<cassert> // TODO: find a better way to handle conditions than this (throw errors probably)
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cassert> // TODO: find a better way to handle conditions than this (throw errors probably)
 
 SedokuTable::SedokuTable() {
     TileList table = SedokuTable::populateNewTileList();
@@ -17,6 +17,7 @@ SedokuTable::SedokuTable(std::ifstream &file) {
 }
 
 bool SedokuTable::verifyTL(TileList &t) const {
+    if (t.size() != 81) {return false;}
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
         if ((it->value == -1 || it->possibilities.size() == 0) && it->isSet) {return false;}
         // Simply verifies that each tile who has the default value or has no remaining possible values is not also set.
