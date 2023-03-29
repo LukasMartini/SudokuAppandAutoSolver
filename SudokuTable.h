@@ -25,6 +25,7 @@ class SudokuTable {
         bool verifyTL(TileList &t) const;
         TileList populateNewTileList();
         TileList populateNewTileList(std::map<int, int> &presetValues); // Overloaded version that handles presets
+        TileList populateNewTileList(std::ifstream &file);
         std::vector<int> findBoxIndexes(int &index) const;
         std::vector<int> findRowIndexes(int &index) const;
         std::vector<int> findColIndexes(int &index) const;
@@ -40,12 +41,17 @@ class SudokuTable {
         FRIEND_TEST(verifyTLSuite, missingFlagSetAfterChangeToTableExpectDeath);
         FRIEND_TEST(verifyTLSuite, valueOutsideOfExpectedRangeExpectDeath);
 
-        // ----- populateNewTileListOneArgOverloadedSuite ----- //
-        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyValidPresetsExpectCorrectValues);
-        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveKeysExpectFailure);
-        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveValuesExpectFailure);
-        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeKeysExpectFailure);
-        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeValuesExpectFailure);
+        // ----- populateNewTileListMapOverloadedSuite ----- //
+        FRIEND_TEST(populateNewTileListMapOverloadedSuite, supplyValidPresetsExpectCorrectValues);
+        FRIEND_TEST(populateNewTileListMapOverloadedSuite, supplyInvalidPositiveKeysExpectFailure);
+        FRIEND_TEST(populateNewTileListMapOverloadedSuite, supplyInvalidPositiveValuesExpectFailure);
+        FRIEND_TEST(populateNewTileListMapOverloadedSuite, supplyInvalidNegativeKeysExpectFailure);
+        FRIEND_TEST(populateNewTileListMapOverloadedSuite, supplyInvalidNegativeValuesExpectFailure);
+
+        // ----- populateNewTileListFileOverloadedSuite ----- //
+        FRIEND_TEST(populateNewTileListFileOverloadedSuite, givenValidFileWithValidMapExpectValidTable);
+        FRIEND_TEST(populateNewTileListFileOverloadedSuite, givenValidFileWithInvalidMapExpectDeath); // More of an integration test ig?
+        FRIEND_TEST(populateNewTileListFileOverloadedSuite, givenInvalidFileExpectDeath);
 
         // ----- findBoxIndexesSuite ----- //
         FRIEND_TEST(findBoxIndexesSuite, givenBaseTableEnsureCorrectBoxIndexes);

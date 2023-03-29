@@ -35,8 +35,8 @@ TEST (verifyTLSuite, valueOutsideOfExpectedRangeExpectDeath) {
     EXPECT_FALSE(st.verifyTL(st.table));
 }
 
-// ----- populateNewTileListOneArgOverloadedSuite ----- //
-TEST (populateNewTileListOneArgOverloadedSuite, supplyValidPresetsExpectCorrectValues) {
+// ----- populateNewTileListMapOverloadedSuite ----- //
+TEST (populateNewTileListMapOverloadedSuite, supplyValidPresetsExpectCorrectValues) {
     std::map<int, int> presets;
     presets[10] = 8;
     presets[23] = 2;
@@ -52,28 +52,45 @@ TEST (populateNewTileListOneArgOverloadedSuite, supplyValidPresetsExpectCorrectV
     EXPECT_TRUE(st.verifyTL(st.table));
 }
 
-TEST (populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveKeysExpectFailure) {
+TEST (populateNewTileListMapOverloadedSuite, supplyInvalidPositiveKeysExpectFailure) {
     std::map<int, int> presets;
     presets[380] = 4;
     EXPECT_DEATH(SudokuTable st {presets}, "");
 }
 
-TEST (populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveValuesExpectFailure) {
+TEST (populateNewTileListMapOverloadedSuite, supplyInvalidPositiveValuesExpectFailure) {
     std::map<int, int> presets;
     presets[38] = 420;
     EXPECT_DEATH(SudokuTable st {presets}, "");
 }
 
-TEST (populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeKeysExpectFailure) {
+TEST (populateNewTileListMapOverloadedSuite, supplyInvalidNegativeKeysExpectFailure) {
     std::map<int, int> presets;
     presets[-38] = 4;
     EXPECT_DEATH(SudokuTable st {presets}, "");
 }
 
-TEST (populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeValuesExpectFailure) {
+TEST (populateNewTileListMapOverloadedSuite, supplyInvalidNegativeValuesExpectFailure) {
     std::map<int, int> presets;
     presets[38] = -4;
     EXPECT_DEATH(SudokuTable st {presets}, "");
+}
+
+// ----- populateNewTileListFileOverloadedSuite ----- //
+TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithValidMapExpectValidTable) {
+    std::ifstream file {"SudokuTableValidFileValidMapTest.txt"};
+    SudokuTable st {file};
+    EXPECT_TRUE(st.verifyTL(st.table));
+}
+
+TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithInvalidMapExpectDeath) {
+    std::ifstream file {"SudokuTableValidFileInvalidMapTest.txt"};
+    EXPECT_DEATH(SudokuTable st {file}, "");
+}
+
+TEST (populateNewTileListFileOverloadedSuite, givenInvalidFileExpectDeath) {
+    std::ifstream file {"BonjourJemappelleOrange.csv"};
+    EXPECT_DEATH(SudokuTable st {file}, "");
 }
 
 // ----- findBoxIndexesSuite ----- //

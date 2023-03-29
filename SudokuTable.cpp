@@ -4,9 +4,10 @@
 
 #include "SudokuTable.h"
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <vector>
 #include <cassert> // TODO: find a better way to handle conditions than this (throw errors probably)
+#include <string>
 
 SudokuTable::SudokuTable() {
     this->table = SudokuTable::populateNewTileList();
@@ -17,10 +18,12 @@ SudokuTable::SudokuTable(std::map<int, int> &presetValues) {
 }
 
 SudokuTable::SudokuTable(std::ifstream &file) {
-
+    this->table = SudokuTable::populateNewTileList(file);
 }
 
 bool SudokuTable::verifyTL(TileList &t) const {
+    // Preconditions:
+    // Implementation:
     if (t.size() != 81) {return false;}
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
         if ((it->value == -1 || !it->possibilities.empty()) && it->isSet) {
@@ -33,6 +36,8 @@ bool SudokuTable::verifyTL(TileList &t) const {
             return false;
         }
     }
+    // Postconditions:
+
     return true;
 }
 
@@ -78,6 +83,25 @@ TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
     assert(SudokuTable::verifyTL(newList));
 
     return newList; // Dumbass. Of course you're gonna get SIGTRAP'd if you don't return a value. Dipshit.
+
+}
+
+TileList SudokuTable::populateNewTileList(std::ifstream &file) { // TODO: check validity in debugger
+    // Preconditions
+    assert(!file.fail());
+    // Implementation:
+    std::map<int, int> filePresets;
+    std::string preset;
+    while (getline(file, preset)) {
+        int key = std::stoi(preset.substr(0, preset.find(' ')));
+        int value = std::stoi(preset.substr(preset.find(' ') + 1));
+        filePresets[key] = value;
+    }
+    TileList newList = SudokuTable::populateNewTileList(filePresets);
+    // Postconditions:
+    assert(SudokuTable::verifyTL(newList));
+
+    return newList;
 
 }
 
