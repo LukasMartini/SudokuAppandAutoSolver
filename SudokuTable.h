@@ -18,6 +18,7 @@ typedef std::vector<Tile> TileList;
 class SudokuTable {
     public:
         SudokuTable();
+        SudokuTable(std::map<int, int> &presetValues);
         SudokuTable(std::ifstream &file);
 
     private:
@@ -35,7 +36,16 @@ class SudokuTable {
         FRIEND_TEST(defaultCtorSuite, givenNoInputEnsureValidTable);
 
         // ----- verifyTLSuite ----- //
-        FRIEND_TEST(verifyTLSuite, afterInvalidValueChangeToTableEnsureDeath);
+        FRIEND_TEST(verifyTLSuite, flagSetWhileValueStillDefaultExpectDeath);
+        FRIEND_TEST(verifyTLSuite, missingFlagSetAfterChangeToTableExpectDeath);
+        FRIEND_TEST(verifyTLSuite, valueOutsideOfExpectedRangeExpectDeath);
+
+        // ----- populateNewTileListOneArgOverloadedSuite ----- //
+        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyValidPresetsExpectCorrectValues);
+        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveKeysExpectFailure);
+        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidPositiveValuesExpectFailure);
+        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeKeysExpectFailure);
+        FRIEND_TEST(populateNewTileListOneArgOverloadedSuite, supplyInvalidNegativeValuesExpectFailure);
 
         // ----- findBoxIndexesSuite ----- //
         FRIEND_TEST(findBoxIndexesSuite, givenBaseTableEnsureCorrectBoxIndexes);

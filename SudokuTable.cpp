@@ -12,19 +12,73 @@ SudokuTable::SudokuTable() {
     this->table = SudokuTable::populateNewTileList();
 }
 
+SudokuTable::SudokuTable(std::map<int, int> &presetValues) {
+    this->table = SudokuTable::populateNewTileList(presetValues);
+}
+
 SudokuTable::SudokuTable(std::ifstream &file) {
 
 }
 
 bool SudokuTable::verifyTL(TileList &t) const {
     if (t.size() != 81) {return false;}
-    // POSSIBLE TODO: depending on how changes to Tile.value are implemented, a test for whether the value is valid may need to be included.
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
-        if ((it->value == -1 || it->possibilities.empty()) && it->isSet) {return false;}
-        if (it->value != -1 && !it->isSet) {return false;}
-        // Simply verifies that each tile who has the default value or has no remaining possible values is not also set.
+        if ((it->value == -1 || !it->possibilities.empty()) && it->isSet) {
+            return false;
+        }
+        if (it->value != -1 && !it->isSet) {
+            return false;
+        }
+        if (it->value != -1 && (it->value < 1 || it->value > 9)) {
+            return false;
+        }
     }
     return true;
+}
+
+TileList SudokuTable::populateNewTileList() {
+    // Preconditions:
+    // Implementation:
+    TileList newList;
+    for (int i = 0; i < 81; i++) {
+        Tile newTile = {
+                -1,
+                {1,2,3,4,5,6,7,8,9},
+                {SudokuTable::findBoxIndexes(i), SudokuTable::findRowIndexes(i), SudokuTable::findColIndexes(i)},
+                false
+        };
+        newList.push_back(newTile);
+    }
+    // Postconditions:
+    assert(SudokuTable::verifyTL(newList));
+
+    return newList;
+}
+
+TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
+    /*
+      // ----- MAP FORMATTING REQUIREMENTS ----- //
+        -> The key must be the tile (index) for which the value is to be assigned (from 0 to 80 inclusive)
+        -> The value must be a number from 1 to 9 inclusive, exclusively
+      // ----- /MAP FORMATTING REQUIREMENTS ----- //
+    */
+    // Preconditions:
+    for (auto &mapIt : presetValues) {
+        assert(mapIt.first >= 0 && mapIt.first <= 80);
+        assert(mapIt.second >= 1 && mapIt.second <= 9);
+    }
+    // Implementation:
+    TileList newList = SudokuTable::populateNewTileList(); // Creates a blank table
+    for (auto &preset : presetValues) {
+        newList.at(preset.first).value = preset.second; // Sets preset value
+        newList.at(preset.first).isSet = true; // Sets the flag to keep track of unchangeable values
+        newList.at(preset.first).possibilities.clear(); // Empties the possibilities vector to ease the WFC process.
+    }
+    // Postconditions:
+    assert(SudokuTable::verifyTL(newList));
+
+    return newList; // Dumbass. Of course you're gonna get SIGTRAP'd if you don't return a value. Dipshit.
+
 }
 
 std::vector<int> SudokuTable::findBoxIndexes(int &index) const {
@@ -82,27 +136,4 @@ std::vector<int> SudokuTable::findColIndexes(int &index) const {
     // Postconditions:
 
     return colIndexes;
-}
-
-TileList SudokuTable::populateNewTileList() {
-    // Preconditions:
-    // Implementation:
-    TileList newList;
-    for (int i = 0; i < 81; i++) {
-        Tile newTile = {
-                -1,
-                {1,2,3,4,5,6,7,8,9},
-                {SudokuTable::findBoxIndexes(i), SudokuTable::findRowIndexes(i), SudokuTable::findColIndexes(i)},
-                false
-        };
-        newList.push_back(newTile);
-    }
-    // Postconditions:
-    assert(SudokuTable::verifyTL(newList));
-
-    return newList;
-}
-
-TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
-
 }
