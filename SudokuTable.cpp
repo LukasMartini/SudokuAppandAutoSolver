@@ -4,7 +4,6 @@
 
 #include "SudokuTable.h"
 #include <iostream>
-//#include <fstream>
 #include <vector>
 #include <cassert> // TODO: find a better way to handle conditions than this (throw errors probably)
 #include <string>
