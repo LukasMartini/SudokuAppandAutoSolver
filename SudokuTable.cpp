@@ -33,6 +33,8 @@ bool SudokuTable::verifyTL(TileList &t) const {
         }
         if (it->value != -1 && (it->value < 1 || it->value > 9)) {
             return false;
+        } if (it->displayPossibilities && it->isSet) {
+            return false;
         }
     }
     // Postconditions:
@@ -49,7 +51,8 @@ TileList SudokuTable::populateNewTileList() {
                 -1,
                 {1,2,3,4,5,6,7,8,9},
                 {SudokuTable::findBoxIndexes(i), SudokuTable::findRowIndexes(i), SudokuTable::findColIndexes(i)},
-                false
+                false,
+                true,
         };
         newList.push_back(newTile);
     }
@@ -76,6 +79,7 @@ TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
     for (auto &preset : presetValues) {
         newList.at(preset.first).value = preset.second; // Sets preset value
         newList.at(preset.first).isSet = true; // Sets the flag to keep track of unchangeable values
+        newList.at(preset.first).displayPossibilities = false;
         newList.at(preset.first).possibilities.clear(); // Empties the possibilities vector to ease the WFC process.
     }
     // Postconditions:

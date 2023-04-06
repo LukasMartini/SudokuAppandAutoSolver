@@ -1,6 +1,7 @@
 //
 // Created by Luke Martin on 2023-03-27.
 //
+#include "WFC.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -12,6 +13,7 @@ struct Tile {
     std::vector<int> possibilities;
     const std::vector<std::vector<int>> adjacencies;
     bool isSet;
+    bool displayPossibilities;
 };
 typedef std::vector<Tile> TileList;
 
@@ -20,6 +22,7 @@ class SudokuTable {
         SudokuTable();
         SudokuTable(std::map<int, int> &presetValues);
         SudokuTable(std::ifstream &file);
+        void updateTable(const std::map<int, int> &changedValues);
 
     private:
         bool verifyTL(TileList &t) const;
@@ -31,6 +34,7 @@ class SudokuTable {
         std::vector<int> findColIndexes(int &index) const;
 
         TileList table;
+        WFC waveFunction;
 
     // ---------- FRIEND TEST SECTION ---------- //
         // ----- defaultCtorSuite ----- //

@@ -78,13 +78,13 @@ TEST (populateNewTileListMapOverloadedSuite, supplyInvalidNegativeValuesExpectFa
 
 // ----- populateNewTileListFileOverloadedSuite ----- //
 TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithValidMapExpectValidTable) {
-    std::ifstream file {"SudokuTableValidFileValidMapTest.txt"};
+    std::ifstream file {"testCaseFiles/SudokuTableValidFileValidMapTest.txt"};
     SudokuTable st {file};
     EXPECT_TRUE(st.verifyTL(st.table));
 }
 
 TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithInvalidMapExpectDeath) {
-    std::ifstream file {"SudokuTableValidFileInvalidMapTest.txt"};
+    std::ifstream file {"testCaseFiles/SudokuTableValidFileInvalidMapTest.txt"};
     EXPECT_DEATH(SudokuTable st {file}, "");
 }
 
