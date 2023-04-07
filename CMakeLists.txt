@@ -20,7 +20,7 @@ target_link_libraries(WaveCollapseSudokuSolver gtest gtest_main)
 #Link with GoogleMock
 target_link_libraries(WaveCollapseSudokuSolver gmock gmock_main)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Gui)
 qt_standard_project_setup()
 
 target_link_libraries(WaveCollapseSudokuSolver Qt6::Core Qt6::Widgets)

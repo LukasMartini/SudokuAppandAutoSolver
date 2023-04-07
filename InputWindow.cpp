@@ -4,6 +4,7 @@
 
 #include "InputWindow.h"
 #include <QtWidgets>
+#include <QtGui>
 
 #include <iostream>
 
@@ -78,10 +79,13 @@ InputWindow::InputWindow() {
 
     mainContainer->setLayout(mainLayout);
 
+    // ----- Keyboard Shortcuts Setup ----- //
+    auto* cmdSwitchInputMode = new QShortcut(QKeySequence (QString {"Ctrl+,"}), this);
+    connect(cmdSwitchInputMode, &QShortcut::activated, this->displayTable, &InputTable::switchMode);
+
     // ----- General Setup ----- //
     this->currentFileName = "";
     this->resize(500, 1000);
     this->setWindowTitle(QString {"WFC Sudoku Solver"});
     setCentralWidget(mainContainer);
-    mainContainer->show();
 }
