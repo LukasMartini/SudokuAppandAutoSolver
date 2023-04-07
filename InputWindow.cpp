@@ -10,44 +10,78 @@
 
 // ----- InputWindow DEFINITIONS ----- //
 InputWindow::InputWindow() {
-    this->currentFileName = "";
+
+    // ----- Sudoku Table Setup ----- //
     this->displayTable = new InputTable;
     this->tableContainer = new QWidget;
-
-    this->mainLayout = new QVBoxLayout;
-    this->mainContainer = new QWidget;
-
     this->tableContainer->setLayout(this->displayTable->tableLayout);
     this->tableContainer->setMaximumSize(500, 500);
     this->tableContainer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    this->resize(600, 1000);
+    // ----- File Management Buttons Setup ----- //
+    auto* fmbMainVLayout = new QVBoxLayout(this);
+    auto* fmbMainVContainer = new QWidget(this);
+    auto* fmbButtonHLayout = new QHBoxLayout(this);
+    auto* fmbButtonHContainer = new QWidget(this);
+
+    auto* fmbScrollArea = new QScrollArea(this);
+    fmbMainVLayout->addWidget(fmbScrollArea);
+    auto* fmbOpen = new QPushButton(this);
+    fmbOpen->setText(QString {"Open..."});
+    fmbButtonHLayout->addWidget(fmbOpen);
+    auto* fmbBrowse = new QPushButton(this);
+    fmbBrowse->setText(QString {"Browse..."});
+    fmbButtonHLayout->addWidget(fmbBrowse);
+
+    fmbButtonHContainer->setLayout(fmbButtonHLayout);
+    fmbMainVLayout->addWidget(fmbButtonHContainer);
+    fmbMainVContainer->setLayout(fmbMainVLayout);
+
+    // ----- Utility Buttons Setup ----- //
+    auto* ubLayout = new QVBoxLayout(this);
+    auto* ubContainer = new QWidget(this);
+
+    auto* ubCheckSolution = new QPushButton(this);
+    ubCheckSolution->setText(QString {"Check Solution"});
+    ubLayout->addWidget(ubCheckSolution);
+    auto* ubAutoSolve = new QPushButton(this);
+    ubAutoSolve->setText(QString {"Auto Solve"});
+    ubLayout->addWidget(ubAutoSolve);
+    auto* ubSave = new QPushButton(this);
+    ubSave->setText(QString {"Save..."});
+    ubLayout->addWidget(ubSave);
+    auto* ubSaveAs = new QPushButton(this);
+    ubSaveAs->setText(QString {"Save As..."});
+    ubLayout->addWidget(ubSaveAs);
+    auto* ubNew = new QPushButton(this);
+    ubNew->setText(QString {"New..."});
+    ubLayout->addWidget(ubNew);
+
+    ubContainer->setLayout(ubLayout);
+
+
+    // ----- Additional Interface Setup ----- //
+    auto* AILayout = new QHBoxLayout(this);
+    auto* AIContainer = new QWidget(this);
+
+    AILayout->addWidget(fmbMainVContainer);
+    AILayout->addWidget(ubContainer);
+
+    AIContainer->setLayout(AILayout);
+
+    // ----- Main Layout Setup ----- //
+    auto* mainLayout = new QVBoxLayout(this);
+    auto* mainContainer = new QWidget(this);
+
+    mainLayout->addWidget(this->tableContainer);
+    mainLayout->addWidget(AIContainer);
+
+    mainContainer->setLayout(mainLayout);
+
+    // ----- General Setup ----- //
+    this->currentFileName = "";
+    this->resize(500, 1000);
     this->setWindowTitle(QString {"WFC Sudoku Solver"});
-    setCentralWidget(this->tableContainer);
-
-    this->tableContainer->show();
-}
-
-
-// ----- InputTable DEFINITIONS ----- //
-InputTable::InputTable() {
-    this->tableLayout = new QGridLayout;
-    for (int i = 0; i < 81; i++) {
-        QLineEdit* newBox = new QLineEdit;
-        newBox->setStyleSheet({
-            "border : 2px solid black;"
-            "background : white;"
-            "height : 50px;"
-            "color : black"
-        });
-        connect(newBox, &QLineEdit::textChanged, this, &InputTable::returnUpdatedTileValue);
-        this->tileInputBoxes[i] = newBox;
-        this->tableLayout->addWidget(newBox, i - (i % 9), i % 9, 1, 1);
-    }
-    this->tableLayout->setSpacing(0);
-    this->tableLayout->setContentsMargins(0,0,0,0);
-}
-
-int InputTable::returnUpdatedTileValue(QString newVal) {
-    std::cout << newVal.toStdString() << std::endl;
+    setCentralWidget(mainContainer);
+    mainContainer->show();
 }

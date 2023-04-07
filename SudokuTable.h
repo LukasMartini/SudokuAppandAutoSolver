@@ -1,6 +1,9 @@
 //
 // Created by Luke Martin on 2023-03-27.
 //
+#ifndef WAVECOLLAPSESUDOKUSOLVER_SUDOKUTABLE_H
+#define WAVECOLLAPSESUDOKUSOLVER_SUDOKUTABLE_H
+
 #include "WFC.h"
 #include <iostream>
 #include <fstream>
@@ -66,3 +69,5 @@ class SudokuTable {
         // ----- findColIndexesSuite ----- //
         FRIEND_TEST(findColIndexesSuite, givenBaseTableEnsureCorrectColIndexes);
 };
+
+#endif
