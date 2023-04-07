@@ -28,7 +28,11 @@ class InputTable : public QWidget{
     private:
         SudokuTable currentTable;
         std::map<int, QLineEdit*> tileInputBoxes;
-        bool inputMode = true; // inputMode being true means set number mode, false means possibilities mode.
+        QRegularExpression settingRE {"^[1-9]{0,1}$"};
+        QRegularExpression possibilitiesRE {"^[1-9]{0,9}$"};
+        QValidator* forceTheseValuesWhenSetting = new QRegularExpressionValidator(settingRE, this);
+        QValidator* forceTheseValuesWhenPossibilitying = new QRegularExpressionValidator(possibilitiesRE, this);
+        bool settingMode = true; // inputMode being true means set number mode, false means possibilities mode.
 };
 
 
