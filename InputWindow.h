@@ -17,14 +17,15 @@ class InputWindow : public QMainWindow{
         QWidget* tableContainer;
         // TODO: destructor.
 
-    private:
+    public slots:
         SudokuTable open(std::ifstream &file);
         bool checkIfSolved();
         SudokuTable autosolver();
-        void save();
+        void save() const;
         void saveAs();
         void newTable();
 
+    private:
         std::string currentFileName;
         InputTable* displayTable;
 };

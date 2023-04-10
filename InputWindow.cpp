@@ -6,11 +6,16 @@
 #include <QtWidgets>
 #include <QtGui>
 
+#include <fstream>
+
 #include <iostream>
 
 
 // ----- InputWindow DEFINITIONS ----- //
 InputWindow::InputWindow() {
+
+    // ----- DEVELOPMENT TEMPORARY STUFF ----- //
+    this->currentFileName = "temp.txt";
 
     // ----- Sudoku Table Setup ----- //
     this->displayTable = new InputTable;
@@ -50,6 +55,7 @@ InputWindow::InputWindow() {
     ubLayout->addWidget(ubAutoSolve);
     auto* ubSave = new QPushButton(this);
     ubSave->setText(QString {"Save..."});
+    connect(ubSave, &QPushButton::pressed, this, &InputWindow::save);
     ubLayout->addWidget(ubSave);
     auto* ubSaveAs = new QPushButton(this);
     ubSaveAs->setText(QString {"Save As..."});
@@ -88,4 +94,9 @@ InputWindow::InputWindow() {
     this->resize(500, 1000);
     this->setWindowTitle(QString {"WFC Sudoku Solver"});
     setCentralWidget(mainContainer);
+}
+
+void InputWindow::save() const{
+    std::ofstream fileToWriteTo {"temp.txt"}; // TODO: generalize this to this->currentFileName when done implementing
+    this->displayTable->saveTable(fileToWriteTo);
 }

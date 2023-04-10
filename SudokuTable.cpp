@@ -42,6 +42,19 @@ bool SudokuTable::verifyTL(TileList &t) const {
     return true;
 }
 
+// ----- Getters ----- //
+std::map<int, int> SudokuTable::getTileValues() { // TODO: write unit tests
+    std::map<int, int> tileValues;
+    for (int tile = 0; tile < this->table.size(); tile++) {
+        tileValues[tile] = this->table.at(tile).value;
+    }
+    return tileValues;
+}
+
+void SudokuTable::updateTable(const std::map<int, int> &changedValues) { // TODO: write unit tests
+    // TODO: implement
+}
+
 TileList SudokuTable::populateNewTileList() {
     // Preconditions:
     // Implementation:
@@ -89,7 +102,7 @@ TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues) {
 
 }
 
-TileList SudokuTable::populateNewTileList(std::ifstream &file) { // TODO: check validity in debugger
+TileList SudokuTable::populateNewTileList(std::ifstream &file) {
     // Preconditions
     assert(!file.fail());
     // Implementation:

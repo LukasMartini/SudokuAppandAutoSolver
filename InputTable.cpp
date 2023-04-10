@@ -5,13 +5,12 @@
 #include "InputTable.h"
 
 
-// ----- InputTable DEFINITIONS ----- //
+// ----- Ctor, Dtor, and Other Important Functions ----- //
 InputTable::InputTable() {
-    // TODO: update class members to get rid of unnecessary ones. Remember to give them parent=this.
     this->tableLayout = new QGridLayout;
     for (int i = 0; i < 81; i++) {
         auto* newBox = new QLineEdit;
-        newBox->setStyleSheet(this->settingSS);
+        newBox->setStyleSheet(this->settingSS); // This is the default stylesheet
         newBox->setValidator(this->forceTheseValuesWhenSetting); // This is the default validator.
         connect(newBox, &QLineEdit::textChanged, this, &InputTable::returnUpdatedTileValue);
         this->tileInputBoxes[i] = newBox;
@@ -21,11 +20,30 @@ InputTable::InputTable() {
     this->tableLayout->setContentsMargins(0,0,0,0);
 }
 
-bool InputTable::validateLength(QString values) {
+// ----- Getters ----- //
+std::map<int, int> InputTable::getInputTableValues() const {
+    std::map<int, int> tableValues;
+    for (auto & tiles : this->tileInputBoxes) {
+        tableValues[tiles.first] = tiles.second->text().toInt(); // NOTE: this is guaranteed to be a safe type change because the regexes never allow non-numeric characters.
+    }
+    return tableValues;
+}
+
+// ----- Pass-off from InputWindow's Slots ----- //
+void InputTable::saveTable(std::ofstream &file){
+    this->currentTable.updateTable(this->getInputTableValues());
+    for (auto & tiles : this->currentTable.getTileValues()) {
+        file << std::to_string(tiles.first) << " " << std::to_string(tiles.second) << std::endl;
+    }
+}
+
+// ----- Validation Functions ----- //
+
+bool InputTable::validateLength(const QString& values) const {
     return (this->settingMode ? values.length() <= 1 : values.length() <= 9);
 }
 
-bool InputTable::validateNoDuplicates(std::string values) {
+bool InputTable::validateNoDuplicates(const std::string &values) {
     for (int i = 0; i < values.length(); i++) {
         if (i != values.length() - 1 && values.at(i) == values.at(i+1)) {
             return false;
@@ -34,7 +52,9 @@ bool InputTable::validateNoDuplicates(std::string values) {
     return true;
 }
 
-int InputTable::returnUpdatedTileValue(QString newVal) {
+// ----- Slot Definitions ----- //
+
+int InputTable::returnUpdatedTileValue(const QString& newVal) {
     // TODO: Allow for formatting based on input mode for passing to ST.
     auto* box = qobject_cast<QLineEdit*>(sender());
     if (this->settingMode && !this->validateLength(newVal)) {

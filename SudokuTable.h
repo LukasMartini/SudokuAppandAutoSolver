@@ -26,6 +26,7 @@ class SudokuTable {
         SudokuTable(std::map<int, int> &presetValues);
         SudokuTable(std::ifstream &file);
         void updateTable(const std::map<int, int> &changedValues);
+        std::map<int, int> getTileValues();
 
     private:
         bool verifyTL(TileList &t) const;
