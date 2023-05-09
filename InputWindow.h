@@ -6,10 +6,8 @@
 
 #include "InputTable.h"
 
-#include <map>
-#include <vector>
-
 #include <QtWidgets>
+#include <QtCore>
 
 class InputWindow : public QMainWindow{
     public:
@@ -25,9 +23,13 @@ class InputWindow : public QMainWindow{
         void saveAs();
         void newTable();
 
+        void switchMode();
+
     private:
         std::string currentFileName;
         InputTable* displayTable;
+
+        QLineEdit* modeBar;
 };
 
 

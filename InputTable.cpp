@@ -29,6 +29,10 @@ std::map<int, int> InputTable::getInputTableValues() const {
     return tableValues;
 }
 
+bool InputTable::getSettingMode() const {
+    return this->settingMode;
+}
+
 // ----- Pass-off from InputWindow's Slots ----- //
 void InputTable::saveTable(std::ofstream &file){
     this->currentTable.updateTable(this->getInputTableValues());
@@ -43,13 +47,13 @@ bool InputTable::validateLength(const QString& values) const {
     return (this->settingMode ? values.length() <= 1 : values.length() <= 9);
 }
 
-bool InputTable::validateNoDuplicates(const std::string &values) {
+int InputTable::validateNoDuplicates(const std::string &values) {
     for (int i = 0; i < values.length(); i++) {
         if (i != values.length() - 1 && values.at(i) == values.at(i+1)) {
-            return false;
+            return i;
         }
     }
-    return true;
+    return -1;
 }
 
 // ----- Slot Definitions ----- //
@@ -67,9 +71,12 @@ int InputTable::returnUpdatedTileValue(const QString& newVal) {
     } else {
         box->setStyleSheet(this->possibilitiesSS);
         std::string sortableNewVal = newVal.toStdString(); // Had bad access issues, just converted to string instead.
+        std::cout << sortableNewVal << std::endl;
         sort(sortableNewVal.begin(), sortableNewVal.end()); // Sorts the string to make duplicate checking possible and cleans the UI.
-        if (!this->validateNoDuplicates(sortableNewVal)) {
-            box->setText(QString::fromStdString(sortableNewVal.substr(0, newVal.length()-1)));
+        std::cout << sortableNewVal << std::endl;
+        int duplicateIndex = this->validateNoDuplicates(sortableNewVal);
+        if (duplicateIndex != -1) {
+            box->setText(QString::fromStdString(sortableNewVal.substr(0, duplicateIndex) + sortableNewVal.substr(duplicateIndex+1, sortableNewVal.length()-1)));
         } else {
             box->setText(QString::fromStdString(sortableNewVal));
         }

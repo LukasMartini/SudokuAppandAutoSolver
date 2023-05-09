@@ -47,6 +47,9 @@ InputWindow::InputWindow() {
     auto* ubLayout = new QVBoxLayout(this);
     auto* ubContainer = new QWidget(this);
 
+    this->modeBar = new QLineEdit(this);
+    this->modeBar->setText(QString {QVariant(this->displayTable->getSettingMode()).toString()});
+    ubLayout->addWidget(this->modeBar);
     auto* ubCheckSolution = new QPushButton(this);
     ubCheckSolution->setText(QString {"Check Solution"});
     ubLayout->addWidget(ubCheckSolution);
@@ -87,7 +90,7 @@ InputWindow::InputWindow() {
 
     // ----- Keyboard Shortcuts Setup ----- //
     auto* cmdSwitchInputMode = new QShortcut(QKeySequence (QString {"Ctrl+,"}), this);
-    connect(cmdSwitchInputMode, &QShortcut::activated, this->displayTable, &InputTable::switchMode);
+    connect(cmdSwitchInputMode, &QShortcut::activated, this, &InputWindow::switchMode);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -96,7 +99,14 @@ InputWindow::InputWindow() {
     setCentralWidget(mainContainer);
 }
 
+
+/* ----- Slot Definitions ----- */
 void InputWindow::save() const{
     std::ofstream fileToWriteTo {"temp.txt"}; // TODO: generalize this to this->currentFileName when done implementing
     this->displayTable->saveTable(fileToWriteTo);
+}
+
+void InputWindow::switchMode() {
+    this->displayTable->switchMode();
+    this->modeBar->setText(QString {QVariant(this->displayTable->getSettingMode()).toString()});
 }

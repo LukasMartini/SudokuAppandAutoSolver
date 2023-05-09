@@ -22,6 +22,7 @@ class InputTable : public QWidget{
         void saveTable(std::ofstream &file);
 
         std::map<int, int> getInputTableValues() const;
+        bool getSettingMode() const;
 
     public slots:
         int returnUpdatedTileValue(const QString&);
@@ -32,7 +33,7 @@ class InputTable : public QWidget{
         std::map<int, QLineEdit*> tileInputBoxes;
 
         bool validateLength(const QString& values) const;
-        static bool validateNoDuplicates(const std::string &values);
+        static int validateNoDuplicates(const std::string &values);
 
         const QRegularExpression settingRE {"^[1-9]{0,1}$"};
         const QString settingSS {"border : 2px solid black;"
@@ -41,7 +42,7 @@ class InputTable : public QWidget{
                                "width : 50px;"
                                "color : black;"
                                "font-size : 20px"};
-        const QRegularExpression possibilitiesRE {"^[1-9]{0,9}$"}; // TODO: allow for an additional character when setting mode is true but validate is false.
+        const QRegularExpression possibilitiesRE {"^[1-9]{0,10}$"};
         const QString possibilitiesSS { "border : 2px solid black;"
                                   "background : white;"
                                   "height : 50px;"
