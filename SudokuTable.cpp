@@ -57,11 +57,18 @@ std::map<int, int> SudokuTable::getTileValues() { // TODO: write unit tests
 }
 
 // ----- Hand-offs From InputWindow.cpp ----- //
-void SudokuTable::updateTable(const std::map<int, int> &changedValues) { // TODO: write unit tests
-    // TODO: implement
+void SudokuTable::updateTable(const std::map<int, int> &changedValues) {
     // Preconditions:
+    for (auto &it : changedValues) {
+        assert(it.first >= 0 && it.first <= 80);
+        assert(it.second == -1 || (it.second >= 1 && it.second <= 9));
+    }
     // Implementations:
+    for (auto &it : changedValues) {
+        this->table.at(it.first).value = it.second;
+    }
     // Postconditions:
+    assert(this->verifyTL(this->table));
     // Return Value:
 }
 

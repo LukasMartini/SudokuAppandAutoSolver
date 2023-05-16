@@ -24,12 +24,14 @@ class InputTable : public QWidget{
         std::map<int, int> getInputTableValues() const;
         bool getSettingMode() const;
 
+        void setCurrentTable(SudokuTable* newTable);
+
     public slots:
         int returnUpdatedTileValue(const QString&);
         void switchMode();
 
     private:
-        SudokuTable currentTable;
+        SudokuTable* currentTable;
         std::map<int, QLineEdit*> tileInputBoxes;
 
         bool validateLength(const QString& values) const;

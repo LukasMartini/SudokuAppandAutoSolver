@@ -24,7 +24,7 @@ InputTable::InputTable() {
 std::map<int, int> InputTable::getInputTableValues() const {
     std::map<int, int> tableValues;
     for (auto & tiles : this->tileInputBoxes) {
-        tableValues[tiles.first] = tiles.second->text().toInt(); // NOTE: this is guaranteed to be a safe type change because the regexes never allow non-numeric characters.
+        tiles.second->text().isEmpty() ? tableValues[tiles.first] = -1 : tableValues[tiles.first] = tiles.second->text().toInt(); // NOTE: this is guaranteed to be a safe type change because the regexes never allow non-numeric characters.
     }
     return tableValues;
 }
@@ -33,13 +33,22 @@ bool InputTable::getSettingMode() const {
     return this->settingMode;
 }
 
+// ----- Setters ----- //
+void InputTable::setCurrentTable(SudokuTable* newTable) { // TODO: add possibilities
+    this->currentTable = newTable;
+    for (auto &it : this->currentTable->getTileValues()) {
+        if (it.second != -1) {
+            this->tileInputBoxes[it.first]->setText(QString::number(it.second));
+        }
+    }
+}
+
 // ----- Pass-off from InputWindow's Slots ----- //
-void InputTable::saveTable(std::ofstream &file){
-    this->currentTable.updateTable(this->getInputTableValues());
-    for (auto & tiles : this->currentTable.getTileValues()) {
+void InputTable::saveTable(std::ofstream &file){ // TODO: add possibilities
+    this->currentTable->updateTable(this->getInputTableValues());
+    for (auto & tiles : this->currentTable->getTileValues()) {
         file << std::to_string(tiles.first) << " " << std::to_string(tiles.second) << std::endl;
     }
-    file << '\b';
 }
 
 // ----- Validation Functions ----- //

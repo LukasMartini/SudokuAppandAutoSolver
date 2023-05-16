@@ -155,8 +155,6 @@ TEST (getTileValuesSuite, givenValidPopulatedTableExpectCorrectValuesReturned) {
 // so making a unit test for it is irrelevant. So is this note, but this is more to remind myself lol.
 
 // ----- updateTableSuite ----- //
-
-/*
 TEST (updateTableSuite, givenValidValuesExpectValidUpdate) {
     std::map<int, int> validUpdates;
     validUpdates[6] = 9;
@@ -171,4 +169,3 @@ TEST (updateTableSuite, givenInvalidValuesExpectDeath) {
     SudokuTable st;
     EXPECT_DEATH(st.updateTable(invalidUpdates), "");
 }
-*/

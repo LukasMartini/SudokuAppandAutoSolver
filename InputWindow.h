@@ -16,7 +16,7 @@ class InputWindow : public QMainWindow{
         // TODO: destructor.
 
     public slots:
-        SudokuTable open(std::ifstream &file);
+        void open(QListWidgetItem *filename);
         bool checkIfSolved();
         SudokuTable autosolver();
         void save() const;
@@ -24,6 +24,7 @@ class InputWindow : public QMainWindow{
         void newTable();
 
         void switchMode();
+        void refreshFileManager();
 
     private:
         std::string currentFileName;

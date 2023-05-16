@@ -7,6 +7,7 @@
 #include <QtGui>
 
 #include <fstream>
+#include <filesystem>
 
 #include <iostream>
 
@@ -30,8 +31,14 @@ InputWindow::InputWindow() {
     auto* fmbButtonHLayout = new QHBoxLayout(this);
     auto* fmbButtonHContainer = new QWidget(this);
 
-    auto* fmbScrollArea = new QScrollArea(this);
-    fmbMainVLayout->addWidget(fmbScrollArea);
+    auto* fmbListWidget = new QListWidget(this);
+    fmbMainVLayout->addWidget(fmbListWidget);
+    connect(fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open);
+    for (auto &it : std::filesystem::directory_iterator("../tables")) {
+        auto* filename = new QListWidgetItem();
+        filename->setText(QString::fromStdString(it.path().filename()));
+        fmbListWidget->addItem(filename);
+    }
     auto* fmbOpen = new QPushButton(this);
     fmbOpen->setText(QString {"Open..."});
     fmbButtonHLayout->addWidget(fmbOpen);
@@ -89,8 +96,10 @@ InputWindow::InputWindow() {
     mainContainer->setLayout(mainLayout);
 
     // ----- Keyboard Shortcuts Setup ----- //
-    auto* cmdSwitchInputMode = new QShortcut(QKeySequence (QString {"Ctrl+,"}), this);
+    auto* cmdSwitchInputMode = new QShortcut(QKeySequence (QString ("Ctrl+,")), this);
     connect(cmdSwitchInputMode, &QShortcut::activated, this, &InputWindow::switchMode);
+    auto* cmdRefreshFileManager = new QShortcut(QKeySequence(QString ("Ctrl+R")), this);
+    connect(cmdRefreshFileManager, &QShortcut::activated, this, &InputWindow::refreshFileManager);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -101,12 +110,31 @@ InputWindow::InputWindow() {
 
 
 /* ----- Slot Definitions ----- */
+void InputWindow::open(QListWidgetItem *filename) {
+    //TODO: Implement.
+    // Preconditions:
+    // Implementation:
+    std::ifstream file ("../tables/" + filename->text().toStdString());
+    SudokuTable* newST = new SudokuTable(file, false); // TODO: decide as to how to deal with this. Probably include isSet in the file, get ready to refactor lmao.
+    this->displayTable->setCurrentTable(newST);
+    // Postconditions:
+    // Return Value:
+}
+
 void InputWindow::save() const{
-    std::ofstream fileToWriteTo {"temp.txt"}; // TODO: generalize this to this->currentFileName when done implementing
+    // Preconditions:
+    // Implementation:
+    std::ofstream fileToWriteTo {"../tables/temp.txt"}; // TODO: generalize this to this->currentFileName when done implementing
     this->displayTable->saveTable(fileToWriteTo);
+    // Postconditions:
+    // Return Value:
 }
 
 void InputWindow::switchMode() {
     this->displayTable->switchMode();
     this->modeBar->setText(QString {QVariant(this->displayTable->getSettingMode()).toString()});
+}
+
+void InputWindow::refreshFileManager() {
+
 }
