@@ -23,16 +23,16 @@ typedef std::vector<Tile> TileList;
 class SudokuTable {
     public:
         SudokuTable();
-        SudokuTable(std::map<int, int> &presetValues);
-        SudokuTable(std::ifstream &file);
+        SudokuTable(std::map<int, int> &presetValues, bool setValues);
+        SudokuTable(std::ifstream &file, bool setValues);
         void updateTable(const std::map<int, int> &changedValues);
         std::map<int, int> getTileValues();
 
     private:
         bool verifyTL(TileList &t) const;
         TileList populateNewTileList();
-        TileList populateNewTileList(std::map<int, int> &presetValues); // Overloaded version that handles presets
-        TileList populateNewTileList(std::ifstream &file);
+        TileList populateNewTileList(std::map<int, int> &presetValues, bool setValues); // Overloaded version that handles presets
+        TileList populateNewTileList(std::ifstream &file, bool setValues);
         std::vector<int> findBoxIndexes(int &index) const;
         std::vector<int> findRowIndexes(int &index) const;
         std::vector<int> findColIndexes(int &index) const;
@@ -46,7 +46,6 @@ class SudokuTable {
 
         // ----- verifyTLSuite ----- //
         FRIEND_TEST(verifyTLSuite, flagSetWhileValueStillDefaultExpectDeath);
-        FRIEND_TEST(verifyTLSuite, missingFlagSetAfterChangeToTableExpectDeath);
         FRIEND_TEST(verifyTLSuite, valueOutsideOfExpectedRangeExpectDeath);
 
         // ----- populateNewTileListMapOverloadedSuite ----- //
@@ -69,6 +68,14 @@ class SudokuTable {
 
         // ----- findColIndexesSuite ----- //
         FRIEND_TEST(findColIndexesSuite, givenBaseTableEnsureCorrectColIndexes);
+
+        // ----- getTileValuesSuite ----- //
+        FRIEND_TEST(getTileValuesSuite, givenValidEmptyTableExpectCorrectValuesReturned);
+        FRIEND_TEST(getTileValuesSuite, givenValidPopulatedTableExpectCorrectValuesReturned);
+//
+//        // ----- updateTableSuite ----- //
+//        FRIEND_TEST(updateTableSuite, givenValidValuesExpectValidUpdate);
+//        FRIEND_TEST(updateTableSuite, givenInvalidValuesExpectDeath);
 };
 
 #endif

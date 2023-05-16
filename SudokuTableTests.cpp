@@ -6,6 +6,8 @@
 #include <iostream>
 #include <map>
 
+// A NOTE ABOUT FILE PATHS (for me because I am dumb): The directory that is being checked is /cmake-build-debug/, so
+// ../ needs to be added in front of TestCaseFiles file paths in order to look for the right directory.
 
 // ----- defaultCtorSuite ----- //
 TEST (defaultCtorSuite, givenNoInputEnsureValidTable) {
@@ -17,12 +19,6 @@ TEST (defaultCtorSuite, givenNoInputEnsureValidTable) {
 TEST (verifyTLSuite, flagSetWhileValueStillDefaultExpectDeath) {
     SudokuTable st;
     st.table.at(80).isSet = true;
-    EXPECT_FALSE(st.verifyTL(st.table));
-}
-
-TEST (verifyTLSuite, missingFlagSetAfterChangeToTableExpectDeath) {
-    SudokuTable st;
-    st.table.at(0).value = 2;
     EXPECT_FALSE(st.verifyTL(st.table));
 }
 
@@ -47,7 +43,7 @@ TEST (populateNewTileListMapOverloadedSuite, supplyValidPresetsExpectCorrectValu
     presets[73] = 3;
     presets[58] = 6;
     presets[62] = 9;
-    SudokuTable st {presets};
+    SudokuTable st {presets, false};
 
     EXPECT_TRUE(st.verifyTL(st.table));
 }
@@ -55,42 +51,42 @@ TEST (populateNewTileListMapOverloadedSuite, supplyValidPresetsExpectCorrectValu
 TEST (populateNewTileListMapOverloadedSuite, supplyInvalidPositiveKeysExpectFailure) {
     std::map<int, int> presets;
     presets[380] = 4;
-    EXPECT_DEATH(SudokuTable st {presets}, "");
+    EXPECT_DEATH(SudokuTable st (presets, false), "");
 }
 
 TEST (populateNewTileListMapOverloadedSuite, supplyInvalidPositiveValuesExpectFailure) {
     std::map<int, int> presets;
     presets[38] = 420;
-    EXPECT_DEATH(SudokuTable st {presets}, "");
+    EXPECT_DEATH(SudokuTable st (presets, false), "");
 }
 
 TEST (populateNewTileListMapOverloadedSuite, supplyInvalidNegativeKeysExpectFailure) {
     std::map<int, int> presets;
     presets[-38] = 4;
-    EXPECT_DEATH(SudokuTable st {presets}, "");
+    EXPECT_DEATH(SudokuTable st (presets, false), "");
 }
 
 TEST (populateNewTileListMapOverloadedSuite, supplyInvalidNegativeValuesExpectFailure) {
     std::map<int, int> presets;
     presets[38] = -4;
-    EXPECT_DEATH(SudokuTable st {presets}, "");
+    EXPECT_DEATH(SudokuTable st (presets, false), "");
 }
 
 // ----- populateNewTileListFileOverloadedSuite ----- //
 TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithValidMapExpectValidTable) {
-    std::ifstream file {"testCaseFiles/SudokuTableValidFileValidMapTest.txt"};
-    SudokuTable st {file};
+    std::ifstream file {"../TestCaseFiles/SudokuTableValidFileValidMapTest.txt"};
+    SudokuTable st (file, false);
     EXPECT_TRUE(st.verifyTL(st.table));
 }
 
 TEST (populateNewTileListFileOverloadedSuite, givenValidFileWithInvalidMapExpectDeath) {
-    std::ifstream file {"testCaseFiles/SudokuTableValidFileInvalidMapTest.txt"};
-    EXPECT_DEATH(SudokuTable st {file}, "");
+    std::ifstream file {"../TestCaseFiles/SudokuTableValidFileInvalidMapTest.txt"};
+    EXPECT_DEATH(SudokuTable st (file, false), "");
 }
 
 TEST (populateNewTileListFileOverloadedSuite, givenInvalidFileExpectDeath) {
-    std::ifstream file {"BonjourJemappelleOrange.csv"};
-    EXPECT_DEATH(SudokuTable st {file}, "");
+    std::ifstream file {"BonjourJeM'appelleOrange.csv"};
+    EXPECT_DEATH(SudokuTable st (file, false), "");
 }
 
 // ----- findBoxIndexesSuite ----- //
@@ -124,13 +120,55 @@ TEST (findRowIndexesSuite, givenBaseTableEnsureCorrectRowIndexes) {
     }
 }
 
-// ---- findColIndexesSuite ----- //
+// ----- findColIndexesSuite ----- //
 TEST (findColIndexesSuite, givenBaseTableEnsureCorrectColIndexes) {
     SudokuTable st;
     for (int tile = 0; tile < 81; tile++) {
         for (auto &colIt : st.table.at(tile).adjacencies.at(2)) {
-            EXPECT_TRUE(colIt != tile); // Ensures that the given index is not present in it's adjacency column list
+            EXPECT_TRUE(colIt != tile); // Ensures that the given index is not present in its adjacency column list
             EXPECT_TRUE(colIt % 9 == tile % 9); // Ensures that all values in a given column have the same base row square
         }
     }
 }
+
+// ----- getTileValuesSuite ----- //
+TEST (getTileValuesSuite, givenValidEmptyTableExpectCorrectValuesReturned) {
+    std::ifstream file {"../TestCaseFiles/SudokuTableValidSaveFileEmptyTable.txt"};
+    SudokuTable st (file, false);
+    std::map<int, int> filesTiles = st.getTileValues();
+    for (auto &tile : filesTiles) {
+        EXPECT_EQ(tile.second, -1); // Other tests should ensure that the table is valid. Thus, I am only checking the tile values.
+    }
+}
+
+TEST (getTileValuesSuite, givenValidPopulatedTableExpectCorrectValuesReturned) {
+    std::ifstream file {"../TestCaseFiles/SudokuTableValidSaveFilePopulatedTable.txt"};
+    SudokuTable st (file, false);
+    std::map<int, int> filesTiles = st.getTileValues();
+    EXPECT_EQ(filesTiles[10], 9);
+    EXPECT_EQ(filesTiles[47], 1);
+    EXPECT_EQ(filesTiles[80], -1); // Redundancy?
+}
+
+// NOTE: Due to how the class is set up, building an invalid table should fail before getTileValues() can be called.
+// Additionally, using updateTable() should also fail before getTileValues() can be called with an invalid table,
+// so making a unit test for it is irrelevant. So is this note, but this is more to remind myself lol.
+
+// ----- updateTableSuite ----- //
+
+/*
+TEST (updateTableSuite, givenValidValuesExpectValidUpdate) {
+    std::map<int, int> validUpdates;
+    validUpdates[6] = 9;
+    validUpdates[41] = 1;
+    SudokuTable st;
+    st.updateTable(validUpdates); // The assertion in the method is the fail condition
+}
+
+TEST (updateTableSuite, givenInvalidValuesExpectDeath) {
+    std::map<int, int> invalidUpdates;
+    invalidUpdates[9] = -6;
+    SudokuTable st;
+    EXPECT_DEATH(st.updateTable(invalidUpdates), "");
+}
+*/

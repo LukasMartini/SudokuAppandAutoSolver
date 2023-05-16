@@ -39,10 +39,10 @@ void InputTable::saveTable(std::ofstream &file){
     for (auto & tiles : this->currentTable.getTileValues()) {
         file << std::to_string(tiles.first) << " " << std::to_string(tiles.second) << std::endl;
     }
+    file << '\b';
 }
 
 // ----- Validation Functions ----- //
-
 bool InputTable::validateLength(const QString& values) const {
     return (this->settingMode ? values.length() <= 1 : values.length() <= 9);
 }
@@ -57,7 +57,6 @@ int InputTable::validateNoDuplicates(const std::string &values) {
 }
 
 // ----- Slot Definitions ----- //
-
 int InputTable::returnUpdatedTileValue(const QString& newVal) {
     // TODO: Allow for formatting based on input mode for passing to ST.
     auto* box = qobject_cast<QLineEdit*>(sender());
