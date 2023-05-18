@@ -19,7 +19,7 @@ class InputWindow : public QMainWindow{
         void open(QListWidgetItem *filename);
         bool checkIfSolved();
         SudokuTable autosolver();
-        void save() const;
+        void save();
         void saveAs();
         void newTable();
 
@@ -29,6 +29,7 @@ class InputWindow : public QMainWindow{
     private:
         std::string currentFileName;
         InputTable* displayTable;
+        QListWidget* fmbListWidget;
 
         QLineEdit* modeBar;
 };

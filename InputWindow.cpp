@@ -31,14 +31,10 @@ InputWindow::InputWindow() {
     auto* fmbButtonHLayout = new QHBoxLayout(this);
     auto* fmbButtonHContainer = new QWidget(this);
 
-    auto* fmbListWidget = new QListWidget(this);
-    fmbMainVLayout->addWidget(fmbListWidget);
-    connect(fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open);
-    for (auto &it : std::filesystem::directory_iterator("../tables")) {
-        auto* filename = new QListWidgetItem();
-        filename->setText(QString::fromStdString(it.path().filename()));
-        fmbListWidget->addItem(filename);
-    }
+    this->fmbListWidget = new QListWidget(this);
+    fmbMainVLayout->addWidget(this->fmbListWidget);
+    connect(this->fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open);
+    this->refreshFileManager();
     auto* fmbOpen = new QPushButton(this);
     fmbOpen->setText(QString {"Open..."});
     fmbButtonHLayout->addWidget(fmbOpen);
@@ -100,6 +96,10 @@ InputWindow::InputWindow() {
     connect(cmdSwitchInputMode, &QShortcut::activated, this, &InputWindow::switchMode);
     auto* cmdRefreshFileManager = new QShortcut(QKeySequence(QString ("Ctrl+R")), this);
     connect(cmdRefreshFileManager, &QShortcut::activated, this, &InputWindow::refreshFileManager);
+    auto* cmdSaveFile = new QShortcut(QKeySequence(QString("Ctrl+S")), this);
+    connect(cmdSaveFile, &QShortcut::activated, this, &InputWindow::save);
+    auto* cmdSaveFileAs = new QShortcut(QKeySequence(QString ("Ctrl+Shift+S")), this);
+    connect(cmdSaveFileAs, &QShortcut::activated, this, &InputWindow::saveAs);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -111,21 +111,44 @@ InputWindow::InputWindow() {
 
 /* ----- Slot Definitions ----- */
 void InputWindow::open(QListWidgetItem *filename) {
-    //TODO: Implement.
+    // TODO: Implement.
     // Preconditions:
     // Implementation:
-    std::ifstream file ("../tables/" + filename->text().toStdString());
+    this->currentFileName = filename->text().toStdString();
+    std::ifstream file ("../tables/" + this->currentFileName);
     SudokuTable* newST = new SudokuTable(file, false); // TODO: decide as to how to deal with this. Probably include isSet in the file, get ready to refactor lmao.
     this->displayTable->setCurrentTable(newST);
     // Postconditions:
     // Return Value:
 }
 
-void InputWindow::save() const{
+void InputWindow::save() {
+    // Preconditions:
+    if (this->currentFileName.empty()) {
+        bool inputted; // TODO: figure out why default text is system name
+        QString newFileName = QInputDialog::getText(this->tableContainer, QString ("New File"), QString ("File Name"), QLineEdit::Normal, QDir::home().dirName(), &inputted);
+        if (inputted && !newFileName.isEmpty()) {
+            if (!std::filesystem::exists("../tables/" + newFileName.toStdString())) {
+                this->currentFileName = newFileName.toStdString();
+            } else {
+                // TODO: Implement fail message into the dialog
+                std::cout << "Filename already exists." << std::endl;
+            }
+        }
+    }
+    // Implementation:
+    std::ofstream fileToWriteTo {"../tables/" + this->currentFileName};
+    this->displayTable->saveTable(fileToWriteTo);
+    fileToWriteTo.close();
+    this->refreshFileManager();
+    // Postconditions:
+    // Return Value:
+}
+
+void InputWindow::saveAs() {
+    // TODO: implement.
     // Preconditions:
     // Implementation:
-    std::ofstream fileToWriteTo {"../tables/temp.txt"}; // TODO: generalize this to this->currentFileName when done implementing
-    this->displayTable->saveTable(fileToWriteTo);
     // Postconditions:
     // Return Value:
 }
@@ -136,5 +159,14 @@ void InputWindow::switchMode() {
 }
 
 void InputWindow::refreshFileManager() {
-
+    // Preconditions:
+    // Implementation:
+    this->fmbListWidget->clear();
+    for (auto &it : std::filesystem::directory_iterator("../tables")) {
+        auto* filename = new QListWidgetItem();
+        filename->setText(QString::fromStdString(it.path().filename()));
+        this->fmbListWidget->addItem(filename);
+    }
+    // Postconditions:
+    // Return Value:
 }

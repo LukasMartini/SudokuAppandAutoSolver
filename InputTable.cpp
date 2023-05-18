@@ -39,13 +39,19 @@ void InputTable::setCurrentTable(SudokuTable* newTable) { // TODO: add possibili
     for (auto &it : this->currentTable->getTileValues()) {
         if (it.second != -1) {
             this->tileInputBoxes[it.first]->setText(QString::number(it.second));
+        } else {
+            this->tileInputBoxes[it.first]->setText(QString (""));
         }
     }
 }
 
 // ----- Pass-off from InputWindow's Slots ----- //
 void InputTable::saveTable(std::ofstream &file){ // TODO: add possibilities
-    this->currentTable->updateTable(this->getInputTableValues());
+    if (this->currentTable) {
+        this->currentTable->updateTable(this->getInputTableValues());
+    } else {
+        this->currentTable = new SudokuTable();
+    }
     for (auto & tiles : this->currentTable->getTileValues()) {
         file << std::to_string(tiles.first) << " " << std::to_string(tiles.second) << std::endl;
     }
