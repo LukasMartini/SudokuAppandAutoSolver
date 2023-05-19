@@ -100,6 +100,8 @@ InputWindow::InputWindow() {
     connect(cmdSaveFile, &QShortcut::activated, this, &InputWindow::save);
     auto* cmdSaveFileAs = new QShortcut(QKeySequence(QString ("Ctrl+Shift+S")), this);
     connect(cmdSaveFileAs, &QShortcut::activated, this, &InputWindow::saveAs);
+    auto* cmdOpenFile = new QShortcut(QKeySequence(QString ("Ctrl+O")), this);
+//    connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::open);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -124,19 +126,32 @@ void InputWindow::open(QListWidgetItem *filename) {
 
 void InputWindow::save() {
     // Preconditions:
+    // Implementation:
     if (this->currentFileName.empty()) {
-        bool inputted; // TODO: figure out why default text is system name
-        QString newFileName = QInputDialog::getText(this->tableContainer, QString ("New File"), QString ("File Name"), QLineEdit::Normal, QDir::home().dirName(), &inputted);
-        if (inputted && !newFileName.isEmpty()) {
-            if (!std::filesystem::exists("../tables/" + newFileName.toStdString())) {
-                this->currentFileName = newFileName.toStdString();
-            } else {
-                // TODO: Implement fail message into the dialog
-                std::cout << "Filename already exists." << std::endl;
-            }
+        this->saveAs();
+    } else {
+        std::ofstream fileToWriteTo{"../tables/" + this->currentFileName};
+        this->displayTable->saveTable(fileToWriteTo);
+        fileToWriteTo.close();
+        this->refreshFileManager();
+    }
+    // Postconditions:
+    // Return Value:
+}
+
+void InputWindow::saveAs() {
+    // Preconditions:
+    // Implementation:
+    bool inputted; // TODO: figure out why default text is system name
+    QString newFileName = QInputDialog::getText(this->tableContainer, QString ("New File"), QString ("File Name"), QLineEdit::Normal, QDir::home().dirName(), &inputted);
+    if (inputted && !newFileName.isEmpty()) {
+        if (!std::filesystem::exists("../tables/" + newFileName.toStdString())) {
+            this->currentFileName = newFileName.toStdString();
+        } else {
+            // TODO: Implement fail message into the dialog
+            std::cout << "Filename already exists." << std::endl;
         }
     }
-    // Implementation:
     std::ofstream fileToWriteTo {"../tables/" + this->currentFileName};
     this->displayTable->saveTable(fileToWriteTo);
     fileToWriteTo.close();
@@ -145,7 +160,7 @@ void InputWindow::save() {
     // Return Value:
 }
 
-void InputWindow::saveAs() {
+void InputWindow::newTable() {
     // TODO: implement.
     // Preconditions:
     // Implementation:
