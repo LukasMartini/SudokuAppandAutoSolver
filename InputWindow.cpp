@@ -202,9 +202,11 @@ void InputWindow::refreshFileManager() {
     // Implementation:
     this->fmbListWidget->clear();
     for (auto &it : std::filesystem::directory_iterator("../tables")) {
-        auto* filename = new QListWidgetItem();
-        filename->setText(QString::fromStdString(it.path().filename()));
-        this->fmbListWidget->addItem(filename);
+        if (it.path().filename() != ".gitignore") {
+            auto *filename = new QListWidgetItem();
+            filename->setText(QString::fromStdString(it.path().filename()));
+            this->fmbListWidget->addItem(filename);
+        }
     }
     // Postconditions:
     // Return Value:

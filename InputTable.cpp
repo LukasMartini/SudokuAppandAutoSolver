@@ -36,18 +36,23 @@ bool InputTable::getSettingMode() const {
 
 // ----- Setters ----- //
 void InputTable::setCurrentTable(SudokuTable* newTable) {
-    this->currentTable = newTable;
-    for (auto &it : this->currentTable->getTileValues()) {
-        if (it.second != -1) {
-            if (this->currentTable->getTile(it.first).displayPossibilities) {
-                this->settingMode = false;
-                this->tileInputBoxes[it.first]->setValidator(this->forceTheseValuesWhenPossibilitying);
+    this->currentTable = newTable; // Sets the currentTable field to the new data.
+    for (auto &it : this->currentTable->getTileValues()) { // Iterates over all the tile values to display them and to format as required.
+        this->tileInputBoxes[it.first]->setEnabled(true); // Resets the setEnabled flag to allow for changes when reading from a different file.
+        if (it.second != -1) { // If there is a value in that box...
+            if (this->currentTable->getTile(it.first).displayPossibilities) { // And if the "value" is actually a list of possibilities...
+                this->settingMode = false; // This tricks the returnUpdatedTileValue slot into thinking that it's in possibilities mode for just this tile to get the validator and stylesheet right.
+                this->tileInputBoxes[it.first]->setValidator(this->forceTheseValuesWhenPossibilitying); // Set the right validator and stylesheet manually.
                 this->tileInputBoxes[it.first]->setStyleSheet(this->possibilitiesSS);
             }
-            this->tileInputBoxes[it.first]->setText(QString::number(it.second));
-            this->settingMode = true;
+            this->tileInputBoxes[it.first]->setText(QString::number(it.second)); // Sets the input box's text to the value of the tile in the save data.
+            this->settingMode = true; // Resets the setting mode to stay in the correct display mode when writing into the table from a file.
         } else {
-            this->tileInputBoxes[it.first]->setText(QString (""));
+            this->tileInputBoxes[it.first]->setText(QString ("")); // If there isn't a value to be written to the screen, leave it blank.
+        }
+
+        if (this->currentTable->getTile(it.first).isSet) { // Handles values that can't be changed. // TODO: make this work // TODO: make the flag only be set to 1 IN THE FILE if the value isn't a possibilities value.
+            this->tileInputBoxes[it.first]->setEnabled(false); // TODO: consider a special stylesheet for these boxes to avoid confusion.
         }
     }
 }
