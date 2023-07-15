@@ -33,11 +33,12 @@ InputWindow::InputWindow() {
 
     this->fmbListWidget = new QListWidget(this);
     fmbMainVLayout->addWidget(this->fmbListWidget);
-    connect(this->fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open);
+    connect(this->fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open); // TODO: add a connection to a delete button // TODO: add a right-click menu
     this->refreshFileManager();
     auto* fmbOpen = new QPushButton(this);
     fmbOpen->setText(QString {"Open..."});
     fmbButtonHLayout->addWidget(fmbOpen);
+    connect(fmbOpen, &QPushButton::pressed, this, &InputWindow::openFromButton);
     auto* fmbBrowse = new QPushButton(this);
     fmbBrowse->setText(QString {"Browse..."});
     fmbButtonHLayout->addWidget(fmbBrowse);
@@ -65,9 +66,11 @@ InputWindow::InputWindow() {
     ubLayout->addWidget(ubSave);
     auto* ubSaveAs = new QPushButton(this);
     ubSaveAs->setText(QString {"Save As..."});
+    connect(ubSaveAs, &QPushButton::pressed, this, &InputWindow::saveAs);
     ubLayout->addWidget(ubSaveAs);
     auto* ubNew = new QPushButton(this);
     ubNew->setText(QString {"New..."});
+    connect(ubNew, &QPushButton::pressed, this, &InputWindow::newTable);
     ubLayout->addWidget(ubNew);
 
     ubContainer->setLayout(ubLayout);
@@ -121,6 +124,16 @@ void InputWindow::open(QListWidgetItem *filename) {
     std::ifstream file ("../tables/" + this->currentFileName);
     SudokuTable* newST = new SudokuTable(file, false);
     this->displayTable->setCurrentTable(newST);
+    // Postconditions:
+    // Return Value:
+}
+
+void InputWindow::openFromButton() {
+    // Preconditions:
+    // Implementation:
+    if (this->fmbListWidget->currentItem()) { // This if-statement protects against a crash caused by trying to check for the default item when there are no items in the QListWidget.
+        this->open(this->fmbListWidget->currentItem()); // Because of slot jank, I have to do this as a call-from-a-call to be able to connect the button to open since the button has no value to return.
+    }
     // Postconditions:
     // Return Value:
 }

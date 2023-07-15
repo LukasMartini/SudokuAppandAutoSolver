@@ -85,7 +85,6 @@ int InputTable::validateNoDuplicates(const std::string &values) {
 
 // ----- Slot Definitions ----- //
 int InputTable::returnUpdatedTileValue(const QString& newVal) {
-    // TODO: Allow for formatting based on input mode for passing to ST.
     auto* box = qobject_cast<QLineEdit*>(sender());
     if (this->settingMode && !this->validateLength(newVal)) {
         QString newSetValue = newVal.at(newVal.length()-1);

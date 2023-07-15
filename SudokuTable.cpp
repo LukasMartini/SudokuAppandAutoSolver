@@ -27,7 +27,7 @@ bool SudokuTable::verifyTL(TileList &t) const {
     // Implementation:
     if (t.size() != 81) {return false;}
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
-        if ((it->value == -1 || !it->possibilities.empty()) && it->isSet) {
+        if (it->value < 9 && it->isSet) { // NOTE: no value == -1 check is required because the regexes enforce any non-(-1) values to be >0
             return false;
         }
         // TODO: add a regex check on possibilities.
@@ -90,7 +90,6 @@ TileList SudokuTable::populateNewTileList() {
     for (int i = 0; i < 81; i++) {
         Tile newTile = {
                 -1,
-                "",
                 {this->findBoxIndexes(i), this->findRowIndexes(i), this->findColIndexes(i)},
                 false,
                 true,

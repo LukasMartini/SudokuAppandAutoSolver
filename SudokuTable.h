@@ -13,7 +13,6 @@
 
 struct Tile {
     int value = -1; // -1 is the default, unset value. I would've preferred to use a more descriptive string, but typecasting is for losers.
-    std::string possibilities;
     std::vector<std::vector<int>> adjacencies;
     bool isSet; // A flag used when the number CANNOT be changed (like the numbers given to you at the start of a puzzle)
     bool displayPossibilities;
