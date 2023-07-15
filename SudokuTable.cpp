@@ -13,7 +13,7 @@ SudokuTable::SudokuTable() {
     this->table = this->populateNewTileList();
 }
 
-SudokuTable::SudokuTable(std::map<int, int> &presetValues, bool setValues) {
+SudokuTable::SudokuTable(std::map<int, int> presetValues, bool setValues) {
     this->table = this->populateNewTileList(presetValues, setValues);
 }
 
@@ -30,7 +30,8 @@ bool SudokuTable::verifyTL(TileList &t) const {
         if ((it->value == -1 || !it->possibilities.empty()) && it->isSet) {
             return false;
         }
-        if (it->value != -1 && (it->value < 1 || it->value > 9)) {
+        // TODO: add a regex check on possibilities.
+        if (it->value != -1 && it-> value <= 0){
             return false;
         }
         if (it->displayPossibilities && it->isSet) {
@@ -47,13 +48,22 @@ std::map<int, int> SudokuTable::getTileValues() { // TODO: write unit tests
     // Preconditions:
     assert(this->verifyTL(this->table));
     // Implementation:
-    std::map<int, int> tileValues;
-    for (int tile = 0; tile < this->table.size(); tile++) {
-        tileValues[tile] = this->table.at(tile).value;
+    std::map<int, int> tileNumbersMappedToTileValues;
+    for (int tile = 0; tile < 81; tile++) {
+        tileNumbersMappedToTileValues[tile] = this->table.at(tile).value;
     }
     // Postconditions:
     // Return Value:
-    return tileValues;
+    return tileNumbersMappedToTileValues;
+}
+
+Tile SudokuTable::getTile(int index) { // TODO: write unit tests
+    // Preconditions:
+    assert(this->verifyTL(this->table));
+    // Implementation:
+    // Postconditions:
+    // Return Value:
+    return this->table.at(index);
 }
 
 // ----- Hand-offs From InputWindow.cpp ----- //
@@ -61,7 +71,7 @@ void SudokuTable::updateTable(const std::map<int, int> &changedValues) {
     // Preconditions:
     for (auto &it : changedValues) {
         assert(it.first >= 0 && it.first <= 80);
-        assert(it.second == -1 || (it.second >= 1 && it.second <= 9));
+        assert(it.second == -1 || it.second > 0);
     }
     // Implementations:
     for (auto &it : changedValues) {
@@ -80,7 +90,7 @@ TileList SudokuTable::populateNewTileList() {
     for (int i = 0; i < 81; i++) {
         Tile newTile = {
                 -1,
-                {1,2,3,4,5,6,7,8,9},
+                "",
                 {this->findBoxIndexes(i), this->findRowIndexes(i), this->findColIndexes(i)},
                 false,
                 true,
@@ -103,7 +113,7 @@ TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues, bool
     // Preconditions:
     for (auto &mapIt : presetValues) {
         assert(mapIt.first >= 0 && mapIt.first <= 80);
-        assert(mapIt.second == -1 || (mapIt.second >= 1 && mapIt.second <= 9));
+        assert(mapIt.second == -1 || mapIt.second > 0);
     }
     // Implementation:
     TileList newList = this->populateNewTileList(); // Creates a blank table
@@ -112,8 +122,7 @@ TileList SudokuTable::populateNewTileList(std::map<int, int> &presetValues, bool
         if (preset.second != -1) {
             newList.at(preset.first).isSet = setValues; // Sets the flag to keep track of unchangeable values
         }
-        newList.at(preset.first).displayPossibilities = false;
-        newList.at(preset.first).possibilities.clear(); // Empties the possibilities vector to ease the WFC process.
+        newList.at(preset.first).displayPossibilities = false; // This defaults all tiles to be false. They will be flipped to true in the file override of it is relevant.
     }
     // Postconditions:
     assert(this->verifyTL(newList));
@@ -128,12 +137,17 @@ TileList SudokuTable::populateNewTileList(std::ifstream &file, bool setValues) {
     // Implementation:
     std::map<int, int> filePresets;
     std::string preset;
+    std::vector<int> doIDisplayPossibilities (81);
     while (getline(file, preset)) {
         int key = std::stoi(preset.substr(0, preset.find(' ')));
-        int value = std::stoi(preset.substr(preset.find(' ') + 1));
+        int value = std::stoi(preset.substr(preset.find(' ') + 1, preset.find('[') - 1));
         filePresets[key] = value;
+        doIDisplayPossibilities.at(key) = int(preset.at(preset.length() - 1)) - 48; // Subtracting by 48 returns the character to it's correct numerical value because of ASCII jank.
     }
     TileList newList = this->populateNewTileList(filePresets, setValues);
+    for (int tile = 0; tile < 81; tile++) {
+        newList.at(tile).displayPossibilities = doIDisplayPossibilities.at(tile);
+    }
     // Postconditions:
     assert(this->verifyTL(newList));
     // Return Value:

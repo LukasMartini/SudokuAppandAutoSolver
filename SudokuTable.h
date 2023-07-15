@@ -13,8 +13,8 @@
 
 struct Tile {
     int value = -1; // -1 is the default, unset value. I would've preferred to use a more descriptive string, but typecasting is for losers.
-    std::vector<int> possibilities;
-    const std::vector<std::vector<int>> adjacencies;
+    std::string possibilities;
+    std::vector<std::vector<int>> adjacencies;
     bool isSet; // A flag used when the number CANNOT be changed (like the numbers given to you at the start of a puzzle)
     bool displayPossibilities;
 };
@@ -23,10 +23,11 @@ typedef std::vector<Tile> TileList;
 class SudokuTable {
     public:
         SudokuTable();
-        SudokuTable(std::map<int, int> &presetValues, bool setValues);
+        SudokuTable(std::map<int, int> presetValues, bool setValues);
         SudokuTable(std::ifstream &file, bool setValues);
         void updateTable(const std::map<int, int> &changedValues);
         std::map<int, int> getTileValues();
+        Tile getTile(int index);
 
     private:
         bool verifyTL(TileList &t) const;

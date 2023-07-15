@@ -101,7 +101,7 @@ InputWindow::InputWindow() {
     auto* cmdSaveFileAs = new QShortcut(QKeySequence(QString ("Ctrl+Shift+S")), this);
     connect(cmdSaveFileAs, &QShortcut::activated, this, &InputWindow::saveAs);
     auto* cmdOpenFile = new QShortcut(QKeySequence(QString ("Ctrl+O")), this);
-//    connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::open);
+//    connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::open); // TODO: implement
     auto* cmdNewFile = new QShortcut(QKeySequence(QString ("Ctrl+N")), this);
     connect(cmdNewFile, &QShortcut::activated, this, &InputWindow::newTable);
 
@@ -119,7 +119,7 @@ void InputWindow::open(QListWidgetItem *filename) {
     // Implementation:
     this->currentFileName = filename->text().toStdString();
     std::ifstream file ("../tables/" + this->currentFileName);
-    SudokuTable* newST = new SudokuTable(file, false); // TODO: decide as to how to deal with this. Probably include isSet in the file, get ready to refactor lmao.
+    SudokuTable* newST = new SudokuTable(file, false);
     this->displayTable->setCurrentTable(newST);
     // Postconditions:
     // Return Value:
@@ -149,8 +149,9 @@ void InputWindow::saveAs() {
         if (!std::filesystem::exists("../tables/" + newFileName.toStdString())) {
             this->currentFileName = newFileName.toStdString();
         } else {
-            // TODO: Implement fail message into the dialog
-            std::cout << "Filename already exists." << std::endl;
+            QMessageBox fileNameErrorMsgBox;
+            fileNameErrorMsgBox.setText("Filename already exists. Please choose a new name.");
+            fileNameErrorMsgBox.exec();
         }
     }
     std::ofstream fileToWriteTo {"../tables/" + this->currentFileName};
@@ -161,14 +162,15 @@ void InputWindow::saveAs() {
     // Return Value:
 }
 
-void InputWindow::newTable() {
+void InputWindow::newTable() { // TODO: fix issue where deleting a file while you are editing it makes the program still consider the file to "exist" when saved.
     // Preconditions:
     // Implementation:
     bool inputted;
     QString newFileName = QInputDialog::getText(this->tableContainer, QString("New File"), QString ("File Name"), QLineEdit::Normal, "", &inputted);
     if (inputted && !newFileName.isEmpty() && std::filesystem::exists("../tables/" + newFileName.toStdString())) {
-        // TODO: Implement fail message into the dialog
-        std::cout << "Filename already exists." << std::endl;
+        QMessageBox fileNameErrorMsgBox;
+        fileNameErrorMsgBox.setText("Filename already exists. Please choose a new name.");
+        fileNameErrorMsgBox.exec();
     }
     std::ofstream fileToWriteTo {"../tables/" + newFileName.toStdString()};
     fileToWriteTo.close();

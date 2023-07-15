@@ -4,6 +4,7 @@
 
 #include "InputTable.h"
 
+// TODO: standardize "boxes" to "tiles"
 
 // ----- Ctor, Dtor, and Other Important Functions ----- //
 InputTable::InputTable() {
@@ -34,11 +35,17 @@ bool InputTable::getSettingMode() const {
 }
 
 // ----- Setters ----- //
-void InputTable::setCurrentTable(SudokuTable* newTable) { // TODO: add possibilities
+void InputTable::setCurrentTable(SudokuTable* newTable) {
     this->currentTable = newTable;
     for (auto &it : this->currentTable->getTileValues()) {
         if (it.second != -1) {
+            if (this->currentTable->getTile(it.first).displayPossibilities) {
+                this->settingMode = false;
+                this->tileInputBoxes[it.first]->setValidator(this->forceTheseValuesWhenPossibilitying);
+                this->tileInputBoxes[it.first]->setStyleSheet(this->possibilitiesSS);
+            }
             this->tileInputBoxes[it.first]->setText(QString::number(it.second));
+            this->settingMode = true;
         } else {
             this->tileInputBoxes[it.first]->setText(QString (""));
         }
@@ -46,14 +53,19 @@ void InputTable::setCurrentTable(SudokuTable* newTable) { // TODO: add possibili
 }
 
 // ----- Pass-off from InputWindow's Slots ----- //
-void InputTable::saveTable(std::ofstream &file){ // TODO: add possibilities
-    if (this->currentTable) {
+void InputTable::saveTable(std::ofstream &file){ //
+    if (this->currentTable) { // Updates or creates a new table...
         this->currentTable->updateTable(this->getInputTableValues());
     } else {
-        this->currentTable = new SudokuTable();
+        this->currentTable = new SudokuTable(this->getInputTableValues(), false);
     }
-    for (auto & tiles : this->currentTable->getTileValues()) {
-        file << std::to_string(tiles.first) << " " << std::to_string(tiles.second) << std::endl;
+    for (int tile = 0; tile < 81; tile++) { // ...from which the data is read into the file.
+        Tile currentTile = this->currentTable->getTile(tile);
+        if (currentTile.value > 9) {
+            currentTile.displayPossibilities = true;
+        }
+        file << std::to_string(tile) << " " << std::to_string(currentTile.value) << " [" << this->makePrintableVectorOfVectors(currentTile.adjacencies)
+        << "] " << currentTile.isSet << " " << currentTile.displayPossibilities << std::endl;
     }
 }
 
@@ -85,9 +97,7 @@ int InputTable::returnUpdatedTileValue(const QString& newVal) {
     } else {
         box->setStyleSheet(this->possibilitiesSS);
         std::string sortableNewVal = newVal.toStdString(); // Had bad access issues, just converted to string instead.
-        std::cout << sortableNewVal << std::endl;
         sort(sortableNewVal.begin(), sortableNewVal.end()); // Sorts the string to make duplicate checking possible and cleans the UI.
-        std::cout << sortableNewVal << std::endl;
         int duplicateIndex = this->validateNoDuplicates(sortableNewVal);
         if (duplicateIndex != -1) {
             box->setText(QString::fromStdString(sortableNewVal.substr(0, duplicateIndex) + sortableNewVal.substr(duplicateIndex+1, sortableNewVal.length()-1)));
@@ -107,4 +117,21 @@ void InputTable::switchMode() {
             boxes.second->setValidator(this->forceTheseValuesWhenPossibilitying);
         }
     }
+}
+
+// ----- Additional Helper Functions ----- //
+std::string InputTable::makePrintableVector(std::vector<int> target) {
+    std::string result = "";
+    for (int itemIndex = 0; itemIndex < target.size(); itemIndex++) {
+        itemIndex + 1 < target.size() ? result += (std::to_string(target.at(itemIndex)) + ", ") : result += std::to_string(target.at(itemIndex));
+    }
+    return result;
+}
+
+std::string InputTable::makePrintableVectorOfVectors(std::vector<std::vector<int>> target) {
+    std::string result = "";
+    for (int vectorIndex = 0; vectorIndex < target.size(); vectorIndex++) {
+        vectorIndex + 1 < target.size() ? result += ("[" + this->makePrintableVector(target.at(vectorIndex)) + "], ") : result += ("[" + this->makePrintableVector(target.at(vectorIndex)) + "]");
+    }
+    return result;
 }

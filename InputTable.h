@@ -13,6 +13,9 @@
 #define WAVECOLLAPSESUDOKUSOLVER_INPUTTABLE_H
 
 
+// ON THE DIFFERENCE BETWEEN InputTable AND SudokuTable:
+// InputTable is the grid that the user interfaces with, SudokuTable is the data structure used to handle storage and loading.
+
 class InputTable : public QWidget{
     public:
         InputTable();
@@ -36,6 +39,9 @@ class InputTable : public QWidget{
 
         bool validateLength(const QString& values) const;
         static int validateNoDuplicates(const std::string &values);
+
+        std::string makePrintableVector(std::vector<int> target);
+        std::string makePrintableVectorOfVectors(std::vector<std::vector<int>> target);
 
         const QRegularExpression settingRE {"^[1-9]{0,1}$"};
         const QString settingSS {"border : 2px solid black;"
