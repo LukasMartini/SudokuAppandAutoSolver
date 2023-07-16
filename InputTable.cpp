@@ -51,7 +51,7 @@ void InputTable::setCurrentTable(SudokuTable* newTable) {
             this->tileInputBoxes[it.first]->setText(QString ("")); // If there isn't a value to be written to the screen, leave it blank.
         }
 
-        if (this->currentTable->getTile(it.first).isSet) { // Handles values that can't be changed. // TODO: make this work // TODO: make the flag only be set to 1 IN THE FILE if the value isn't a possibilities value.
+        if (this->currentTable->getTile(it.first).isSet) { // Handles values that can't be changed.
             this->tileInputBoxes[it.first]->setEnabled(false); // TODO: consider a special stylesheet for these boxes to avoid confusion.
         }
     }

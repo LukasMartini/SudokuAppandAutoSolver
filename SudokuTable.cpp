@@ -137,15 +137,18 @@ TileList SudokuTable::populateNewTileList(std::ifstream &file, bool setValues) {
     std::map<int, int> filePresets;
     std::string preset;
     std::vector<int> doIDisplayPossibilities (81);
+    std::vector<int> amIASetValue (81);
     while (getline(file, preset)) {
         int key = std::stoi(preset.substr(0, preset.find(' ')));
         int value = std::stoi(preset.substr(preset.find(' ') + 1, preset.find('[') - 1));
         filePresets[key] = value;
         doIDisplayPossibilities.at(key) = int(preset.at(preset.length() - 1)) - 48; // Subtracting by 48 returns the character to it's correct numerical value because of ASCII jank.
+        amIASetValue.at(key) = int(preset.at(preset.length() - 3)) - 48;
     }
     TileList newList = this->populateNewTileList(filePresets, setValues);
     for (int tile = 0; tile < 81; tile++) {
         newList.at(tile).displayPossibilities = doIDisplayPossibilities.at(tile);
+        newList.at(tile).isSet = amIASetValue.at(tile);
     }
     // Postconditions:
     assert(this->verifyTL(newList));
