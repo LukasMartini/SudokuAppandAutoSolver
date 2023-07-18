@@ -42,6 +42,7 @@ InputWindow::InputWindow() {
     auto* fmbBrowse = new QPushButton(this);
     fmbBrowse->setText(QString {"Browse..."});
     fmbButtonHLayout->addWidget(fmbBrowse);
+    connect(fmbBrowse, &QPushButton::pressed, this, &InputWindow::openFileBrowser);
 
     fmbButtonHContainer->setLayout(fmbButtonHLayout);
     fmbMainVLayout->addWidget(fmbButtonHContainer);
@@ -104,7 +105,7 @@ InputWindow::InputWindow() {
     auto* cmdSaveFileAs = new QShortcut(QKeySequence(QString ("Ctrl+Shift+S")), this);
     connect(cmdSaveFileAs, &QShortcut::activated, this, &InputWindow::saveAs);
     auto* cmdOpenFile = new QShortcut(QKeySequence(QString ("Ctrl+O")), this);
-//    connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::open); // TODO: implement
+    connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::openFileBrowser);
     auto* cmdNewFile = new QShortcut(QKeySequence(QString ("Ctrl+N")), this);
     connect(cmdNewFile, &QShortcut::activated, this, &InputWindow::newTable);
 
@@ -138,13 +139,25 @@ void InputWindow::openFromButton() {
     // Return Value:
 }
 
+void InputWindow::openFileBrowser() {
+    // Preconditions:
+    // Implementation:
+    this->currentFileName = QFileDialog::getOpenFileName(this, QString::fromStdString("Open Table"), QString::fromStdString("../tables"), QString::fromStdString("Table Files (*.tbl)")).toStdString();
+    this->currentFileName = this->currentFileName.substr(this->currentFileName.find("/tables/") + 8); // The weird substring-ing here is to keep currentFileName consistent. Normally, getOpenFileName will return the full filepath, so I snip out the rest to avoid it causing issues elsewhere.
+    std::ifstream file ("../tables/" + this->currentFileName); // NOTE: this is identical to the last section of this->open(), but I'd rather copy/paste than try to macgyver the filename into the list widget. No, thanks.
+    SudokuTable* newST = new SudokuTable(file, false);
+    this->displayTable->setCurrentTable(newST);
+    // Postconditions:
+    // Return Value:
+}
+
 void InputWindow::save() {
     // Preconditions:
     // Implementation:
     if (this->currentFileName.empty()) {
         this->saveAs();
     } else {
-        std::ofstream fileToWriteTo{"../tables/" + this->currentFileName};
+        std::ofstream fileToWriteTo{"../tables/" + this->currentFileName + ".tbl"};
         this->displayTable->saveTable(fileToWriteTo);
         fileToWriteTo.close();
         this->refreshFileManager();
@@ -167,7 +180,7 @@ void InputWindow::saveAs() {
             fileNameErrorMsgBox.exec();
         }
     }
-    std::ofstream fileToWriteTo {"../tables/" + this->currentFileName};
+    std::ofstream fileToWriteTo {"../tables/" + this->currentFileName + ".tbl"};
     this->displayTable->saveTable(fileToWriteTo);
     fileToWriteTo.close();
     this->refreshFileManager();
@@ -185,7 +198,7 @@ void InputWindow::newTable() { // TODO: fix issue where deleting a file while yo
         fileNameErrorMsgBox.setText("Filename already exists. Please choose a new name.");
         fileNameErrorMsgBox.exec();
     }
-    std::ofstream fileToWriteTo {"../tables/" + newFileName.toStdString()};
+    std::ofstream fileToWriteTo {"../tables/" + newFileName.toStdString() + ".tbl"};
     fileToWriteTo.close();
     this->refreshFileManager();
     // Postconditions:
@@ -202,7 +215,7 @@ void InputWindow::refreshFileManager() {
     // Implementation:
     this->fmbListWidget->clear();
     for (auto &it : std::filesystem::directory_iterator("../tables")) {
-        if (it.path().filename() != ".gitignore") {
+        if (it.path().filename() != ".gitignore" && it.path().filename().generic_string().substr(it.path().filename().generic_string().length()-4, 4) == ".tbl") {
             auto *filename = new QListWidgetItem();
             filename->setText(QString::fromStdString(it.path().filename()));
             this->fmbListWidget->addItem(filename);

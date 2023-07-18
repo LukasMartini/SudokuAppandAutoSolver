@@ -18,6 +18,7 @@ class InputWindow : public QMainWindow{
     public slots:
         void open(QListWidgetItem *filename);
         void openFromButton();
+        void openFileBrowser();
         bool checkIfSolved();
         SudokuTable autosolver();
         void save();
