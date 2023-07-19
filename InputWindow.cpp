@@ -57,9 +57,18 @@ InputWindow::InputWindow() {
     auto* ubLayout = new QVBoxLayout(this);
     auto* ubContainer = new QWidget(this);
 
+    auto* ubModeHContainer = new QWidget(this);
+    auto* ubModeHLayout = new QHBoxLayout(this);
+    auto* modeLabel = new QLabel(this);
+    modeLabel->setText("Mode:");
+    ubModeHLayout->addWidget(modeLabel);
     this->modeBar = new QLineEdit(this);
-    this->modeBar->setText(QString {QVariant(this->displayTable->getSettingMode()).toString()});
-    ubLayout->addWidget(this->modeBar);
+    this->displayTable->getSettingMode() ? this->modeBar->setText(QString ("Set")) : this->modeBar->setText(QString ("Rough"));
+    this->modeBar->setEnabled(false);
+    ubModeHLayout->addWidget(this->modeBar);
+    ubModeHContainer->setLayout(ubModeHLayout);
+    ubModeHContainer->setFixedHeight(50);
+    ubLayout->addWidget(ubModeHContainer);
     auto* ubCheckSolution = new QPushButton(this);
     ubCheckSolution->setText(QString {"Check Solution"});
     ubLayout->addWidget(ubCheckSolution);
@@ -257,7 +266,7 @@ void InputWindow::newTable() {
 
 void InputWindow::switchMode() {
     this->displayTable->switchMode();
-    this->modeBar->setText(QString {QVariant(this->displayTable->getSettingMode()).toString()});
+    this->displayTable->getSettingMode() ? this->modeBar->setText(QString ("Set")) : this->modeBar->setText(QString ("Rough"));
 }
 
 void InputWindow::refreshFileManager() {
