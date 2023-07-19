@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <set>
 
 #include <iostream>
 
@@ -33,12 +34,16 @@ InputWindow::InputWindow() {
 
     this->fmbListWidget = new QListWidget(this);
     fmbMainVLayout->addWidget(this->fmbListWidget);
-    connect(this->fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open); // TODO: add a connection to a delete button // TODO: add a right-click menu
+    connect(this->fmbListWidget, &QListWidget::itemDoubleClicked, this, &InputWindow::open);
     this->refreshFileManager();
     auto* fmbOpen = new QPushButton(this);
     fmbOpen->setText(QString {"Open..."});
     fmbButtonHLayout->addWidget(fmbOpen);
     connect(fmbOpen, &QPushButton::pressed, this, &InputWindow::openFromButton);
+    auto* fmbDelete = new QPushButton(this);
+    fmbDelete->setText(QString ("Delete..."));
+    fmbButtonHLayout->addWidget(fmbDelete);
+    connect(fmbDelete, &QPushButton::pressed, this, &InputWindow::deleteFile);
     auto* fmbBrowse = new QPushButton(this);
     fmbBrowse->setText(QString {"Browse..."});
     fmbButtonHLayout->addWidget(fmbBrowse);
@@ -58,6 +63,7 @@ InputWindow::InputWindow() {
     auto* ubCheckSolution = new QPushButton(this);
     ubCheckSolution->setText(QString {"Check Solution"});
     ubLayout->addWidget(ubCheckSolution);
+    connect(ubCheckSolution, &QPushButton::pressed, this, &InputWindow::checkIfSolved);
     auto* ubAutoSolve = new QPushButton(this);
     ubAutoSolve->setText(QString {"Auto Solve"});
     ubLayout->addWidget(ubAutoSolve);
@@ -151,13 +157,54 @@ void InputWindow::openFileBrowser() {
     // Return Value:
 }
 
+void InputWindow::deleteFile() {
+    // Preconditions:
+    // Implementation:
+    if (this->fmbListWidget->currentItem()) {
+        QMessageBox::StandardButton confirmDeletion = QMessageBox::question(this, "Confirmation", "Are you sure you want to delete " + this->fmbListWidget->currentItem()->text() + "?", QMessageBox::Yes|QMessageBox::No);
+        QString *help = new QString ("../tables/" + this->fmbListWidget->currentItem()->text());
+        if (confirmDeletion == QMessageBox::Yes) {
+            std::filesystem::remove(std::filesystem::path(help->toStdString()));
+        }
+        this->refreshFileManager();
+    }
+    // Postconditions:
+    // Return Value:
+}
+
+void InputWindow::checkIfSolved() {
+    // Preconditions:
+    // Implementation:
+    bool isSolved = true;
+    for (int tile = 0; tile < 81; tile++) {
+        if (this->displayTable->currentTable->getTile(tile).value >= 1 && this->displayTable->currentTable->getTile(tile).value <= 9) {
+            for (auto &section: this->displayTable->currentTable->getTile(tile).adjacencies) {
+                std::set<int> currentAdj;
+                std::copy(section.begin(), section.end(), std::inserter(currentAdj, currentAdj.end()));
+                if (section.size() != currentAdj.size()) {
+                    isSolved = false;
+                }
+            }
+        } else {
+            isSolved = false;
+        }
+    }
+    if (isSolved) {
+        QMessageBox::information(this, "Congratulations!", "Congrats! You've solved the puzzle!", QMessageBox::Ok);
+    } else {
+        QMessageBox::warning(this, "Uh oh...", "Unfortunately, that's not the correct solution! Try again...", QMessageBox::Ok);
+    }
+    // Postconditions:
+    // Return Value:
+}
+
 void InputWindow::save() {
     // Preconditions:
     // Implementation:
     if (this->currentFileName.empty()) {
         this->saveAs();
     } else {
-        std::ofstream fileToWriteTo{"../tables/" + this->currentFileName + ".tbl"};
+        std::ofstream fileToWriteTo{"../tables/" + this->currentFileName};
         this->displayTable->saveTable(fileToWriteTo);
         fileToWriteTo.close();
         this->refreshFileManager();
@@ -170,37 +217,40 @@ void InputWindow::saveAs() {
     // Preconditions:
     // Implementation:
     bool inputted;
-    QString newFileName = QInputDialog::getText(this->tableContainer, QString ("New File"), QString ("File Name"), QLineEdit::Normal, "", &inputted);
-    if (inputted && !newFileName.isEmpty()) {
-        if (!std::filesystem::exists("../tables/" + newFileName.toStdString())) {
-            this->currentFileName = newFileName.toStdString();
+    QString newFileName = QInputDialog::getText(this->tableContainer, QString("New File"), QString("File Name"),QLineEdit::Normal, "", &inputted);
+    if (inputted) {
+        if (!newFileName.isEmpty() && std::filesystem::exists("../tables/" + newFileName.toStdString() + ".tbl")) {
+            QMessageBox::warning(this, "Warning", "Filename already exists. Please choose a new name.",QMessageBox::Ok);
+        } else if (newFileName.isEmpty()) {
+            QMessageBox::warning(this, "Warning", "Filename cannot be empty.", QMessageBox::Ok);
         } else {
-            QMessageBox fileNameErrorMsgBox;
-            fileNameErrorMsgBox.setText("Filename already exists. Please choose a new name.");
-            fileNameErrorMsgBox.exec();
+            this->currentFileName = newFileName.toStdString() + ".tbl";
+            std::ofstream fileToWriteTo{"../tables/" + this->currentFileName};
+            this->displayTable->saveTable(fileToWriteTo);
+            fileToWriteTo.close();
+            this->refreshFileManager();
         }
     }
-    std::ofstream fileToWriteTo {"../tables/" + this->currentFileName + ".tbl"};
-    this->displayTable->saveTable(fileToWriteTo);
-    fileToWriteTo.close();
-    this->refreshFileManager();
     // Postconditions:
     // Return Value:
 }
 
-void InputWindow::newTable() { // TODO: fix issue where deleting a file while you are editing it makes the program still consider the file to "exist" when saved.
+void InputWindow::newTable() {
     // Preconditions:
     // Implementation:
     bool inputted;
     QString newFileName = QInputDialog::getText(this->tableContainer, QString("New File"), QString ("File Name"), QLineEdit::Normal, "", &inputted);
-    if (inputted && !newFileName.isEmpty() && std::filesystem::exists("../tables/" + newFileName.toStdString())) {
-        QMessageBox fileNameErrorMsgBox;
-        fileNameErrorMsgBox.setText("Filename already exists. Please choose a new name.");
-        fileNameErrorMsgBox.exec();
+    if (inputted) {
+        if (!newFileName.isEmpty() && std::filesystem::exists("../tables/" + newFileName.toStdString() + ".tbl")) {
+            QMessageBox::warning(this, "Warning", "Filename already exists. Please choose a new name.",QMessageBox::Ok);
+        } else if (newFileName.isEmpty()) {
+            QMessageBox::warning(this, "Warning", "Filename cannot be empty.", QMessageBox::Ok);
+        } else {
+            std::ofstream fileToWriteTo{"../tables/" + newFileName.toStdString() + ".tbl"};
+            fileToWriteTo.close();
+            this->refreshFileManager();
+        }
     }
-    std::ofstream fileToWriteTo {"../tables/" + newFileName.toStdString() + ".tbl"};
-    fileToWriteTo.close();
-    this->refreshFileManager();
     // Postconditions:
     // Return Value:
 }

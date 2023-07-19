@@ -28,13 +28,13 @@ class InputTable : public QWidget{
         bool getSettingMode() const;
 
         void setCurrentTable(SudokuTable* newTable);
+        SudokuTable* currentTable; // Surely this will cause zero issues.
 
     public slots:
         int returnUpdatedTileValue(const QString&);
         void switchMode();
 
     private:
-        SudokuTable* currentTable;
         std::map<int, QLineEdit*> tileInputBoxes;
 
         bool validateLength(const QString& values) const;
