@@ -28,14 +28,14 @@ class InputTable : public QWidget{
         bool getSettingMode() const;
 
         void setCurrentTable(SudokuTable* newTable);
-        SudokuTable* currentTable; // Surely this will cause zero issues.
 
     public slots:
         int returnUpdatedTileValue(const QString&);
         void switchMode();
 
     private:
-        std::map<int, QLineEdit*> tileInputBoxes;
+        SudokuTable* currentTable; // Surely this will cause zero issues.
+        std::map<int, QLineEdit*> tileInputBoxes; // None at all...
 
         bool validateLength(const QString& values) const;
         static int validateNoDuplicates(const std::string &values);
@@ -60,6 +60,8 @@ class InputTable : public QWidget{
         const QValidator* forceTheseValuesWhenSetting = new QRegularExpressionValidator(settingRE, this);
         const QValidator* forceTheseValuesWhenPossibilitying = new QRegularExpressionValidator(possibilitiesRE, this);
         bool settingMode = true; // inputMode being true means set number mode, false means possibilities mode.
+
+    friend class InputWindow;
 };
 
 

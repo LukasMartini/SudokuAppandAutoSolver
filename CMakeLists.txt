@@ -8,7 +8,7 @@ include_directories(.)
 
 add_executable(WaveCollapseSudokuSolver
         SudokuTable.cpp SudokuTable.h testcases/SudokuTableTests.cpp
-        InputWindow.cpp InputWindow.h WFC.cpp WFC.h main.cpp InputTable.cpp InputTable.h)
+        InputWindow.cpp InputWindow.h main.cpp InputTable.cpp InputTable.h WaveFunctionCollapse.cpp WaveFunctionCollapse.h)
 
 add_subdirectory(googletest)
 include_directories(googletest/googletest/include)

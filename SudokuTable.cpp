@@ -27,7 +27,7 @@ bool SudokuTable::verifyTL(TileList &t) const {
     // Implementation:
     if (t.size() != 81) {return false;}
     for (TileList::iterator it = t.begin(); it != t.end(); it++) {
-        if (it->value < 9 && it->isSet) { // NOTE: no value == -1 check is required because the regexes enforce any non-(-1) values to be >0
+        if (it->value > 9 && it->isSet) { // NOTE: no value == -1 check is required because the regexes enforce any non-(-1) values to be >0
             return false;
         }
         // TODO: add a regex check on possibilities.
@@ -188,7 +188,7 @@ std::vector<int> SudokuTable::findRowIndexes(int &index) const {
     int iterIndex = baseIndex;
     std::vector<int> rowIndexes;
 
-    while (iterIndex < index + 9) {
+    while (iterIndex < baseIndex + 9) {
         if (iterIndex != index) {
             rowIndexes.push_back(iterIndex);
         }
@@ -204,7 +204,7 @@ std::vector<int> SudokuTable::findColIndexes(int &index) const {
     int baseIndex = index % 9; // Creates the index along the top row in the same column as the argument index
     std::vector<int> colIndexes;
 
-    while (baseIndex < 72) {
+    while (baseIndex < 81) {
         if (baseIndex != index){
             colIndexes.push_back(baseIndex);
         }

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <filesystem>
 #include <set>
+#include <cmath>
 
 #include <iostream>
 
@@ -76,6 +77,7 @@ InputWindow::InputWindow() {
     auto* ubAutoSolve = new QPushButton(this);
     ubAutoSolve->setText(QString {"Auto Solve"});
     ubLayout->addWidget(ubAutoSolve);
+    connect(ubAutoSolve, &QPushButton::pressed, this, &InputWindow::autosolver);
     auto* ubSave = new QPushButton(this);
     ubSave->setText(QString {"Save..."});
     connect(ubSave, &QPushButton::pressed, this, &InputWindow::save);
@@ -123,6 +125,8 @@ InputWindow::InputWindow() {
     connect(cmdOpenFile, &QShortcut::activated, this, &InputWindow::openFileBrowser);
     auto* cmdNewFile = new QShortcut(QKeySequence(QString ("Ctrl+N")), this);
     connect(cmdNewFile, &QShortcut::activated, this, &InputWindow::newTable);
+    auto* cmdSetValue = new QShortcut(QKeySequence(QString ("Ctrl+E")), this);
+    connect(cmdSetValue, &QShortcut::activated, this, &InputWindow::setValue);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -184,24 +188,83 @@ void InputWindow::deleteFile() {
 void InputWindow::checkIfSolved() {
     // Preconditions:
     // Implementation:
-    bool isSolved = true;
-    for (int tile = 0; tile < 81; tile++) {
-        if (this->displayTable->currentTable->getTile(tile).value >= 1 && this->displayTable->currentTable->getTile(tile).value <= 9) {
-            for (auto &section: this->displayTable->currentTable->getTile(tile).adjacencies) {
-                std::set<int> currentAdj;
-                std::copy(section.begin(), section.end(), std::inserter(currentAdj, currentAdj.end()));
-                if (section.size() != currentAdj.size()) {
-                    isSolved = false;
-                }
-            }
-        } else {
-            isSolved = false;
-        }
-    }
-    if (isSolved) {
+
+    if (this->returnSolved()) {
         QMessageBox::information(this, "Congratulations!", "Congrats! You've solved the puzzle!", QMessageBox::Ok);
     } else {
         QMessageBox::warning(this, "Uh oh...", "Unfortunately, that's not the correct solution! Try again...", QMessageBox::Ok);
+    }
+    // Postconditions:
+    // Return Value:
+}
+
+bool InputWindow::returnSolved() {
+    for (int tile = 0; tile < 81; tile++) {
+        Tile currentTile = this->displayTable->currentTable->getTile(tile);
+        if (currentTile.value >= 1 && currentTile.value <= 9) {
+            for (auto &section: currentTile.adjacencies) {
+                std::set<int> currentAdj;
+                std::copy(section.begin(), section.end(), std::inserter(currentAdj, currentAdj.end()));
+                if (section.size() != currentAdj.size()) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+SudokuTable* InputWindow::autosolver() {
+    // Preconditions:
+    // Implementation:
+
+    if (this->currentFileName.empty()) {
+        this->saveAs(); // TODO: fix crash on cancelling the saveAs.
+    }
+    bool doIRunWFC = false;
+    int indexOfLeastPossibilities;
+    int mostPossibilities = 10;
+    int WFCChosenPossibility;
+    for (int tile = 0; tile < 81; tile++) { // Sets up the wave function collapse algorithm run by determining possible values which can be collapsed later.
+        if (!this->displayTable->currentTable->getTile(tile).isSet) { // Weeds out any previously set values that can be ignored for the purposes of the WFC
+            std::vector<int> possibilities{1, 2, 3, 4, 5, 6, 7, 8, 9};
+            for (auto &section: this->displayTable->currentTable->getTile(tile).adjacencies) { // TODO: try to find a more efficient way to do this, even though the number of values this runs through is constant.
+                for (auto &item: section) {
+                    Tile currentItem = this->displayTable->currentTable->getTile(item);
+                    if (currentItem.isSet && std::find(possibilities.begin(), possibilities.end(), currentItem.value) !=
+                                             possibilities.end()) { // If the value isSet AND the value is currently a possibility, remove it.
+                        possibilities.erase(std::find(possibilities.begin(), possibilities.end(), currentItem.value));
+                    }
+                }
+            }
+            this->displayTable->currentTable->table.at(tile).value = 0 ; // Overwrite the .value to make things easier // NOTE: the table is directly modified here because of questionable design decisions and the fact that I really need to finish this.
+            if (possibilities.size() == 1) { // If there is only one possible value for this tile, set it to that.
+                this->displayTable->currentTable->table.at(tile).value = possibilities.at(0);
+                this->displayTable->currentTable->table.at(tile).isSet = true; // The isSet tag is changed to true so that it counts as true for future tiles.
+                doIRunWFC = true;
+            } else {
+                for (int i = possibilities.size() - 1; i >= 0; i--) {
+                    this->displayTable->currentTable->table.at(tile).value += possibilities.at(i) * std::pow(10, possibilities.size() - i - 1);
+                }
+                if (possibilities.size() < mostPossibilities) {
+                    indexOfLeastPossibilities = tile;
+                    mostPossibilities = possibilities.size();
+                    WFCChosenPossibility = possibilities.at(0);
+                }
+            }
+        }
+    }
+    if (this->returnSolved()) {
+        this->displayTable->setCurrentTable(this->displayTable->currentTable);
+        return this->displayTable->currentTable;
+    } else {
+        if (!doIRunWFC) {
+            this->displayTable->currentTable->table.at(indexOfLeastPossibilities).value = WFCChosenPossibility;
+            this->displayTable->currentTable->table.at(indexOfLeastPossibilities).isSet = true;
+        }
+        return this->autosolver();
     }
     // Postconditions:
     // Return Value:
@@ -262,6 +325,28 @@ void InputWindow::newTable() {
     }
     // Postconditions:
     // Return Value:
+}
+
+void InputWindow::setValue() {
+    bool doesAnythingHaveFocus = false;
+    for (auto& it : this->displayTable->tileInputBoxes) {
+        if (it.second->hasFocus()) {
+            doesAnythingHaveFocus = true;
+            this->save();
+            if (std::to_string(this->displayTable->currentTable->table.at(it.first).value).length() == 1) { // TODO: issues with possibilities. (swaps back to set mode when command is run, doesn't change display type.)
+                this->displayTable->currentTable->table.at(it.first).isSet = true;
+                this->displayTable->currentTable->table.at(it.first).displayPossibilities = false;
+                this->save();
+            } else {
+                QMessageBox::warning(this, "Warning", "The tile to be set must only have one possibility.", QMessageBox::Ok);
+            }
+        }
+    }
+    if (!doesAnythingHaveFocus) {
+        QMessageBox::warning(this, "Warning", "No tiles are selected.", QMessageBox::Ok);
+    } else {
+        this->displayTable->setCurrentTable(this->displayTable->currentTable);
+    }
 }
 
 void InputWindow::switchMode() {

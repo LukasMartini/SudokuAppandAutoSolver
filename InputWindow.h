@@ -5,6 +5,7 @@
 #define WAVECOLLAPSESUDOKUSOLVER_INPUTWINDOW_H
 
 #include "InputTable.h"
+//#include "WaveFunctionCollapse.h"
 
 #include <QtWidgets>
 #include <QtCore>
@@ -21,10 +22,12 @@ class InputWindow : public QMainWindow{
         void openFileBrowser();
         void deleteFile();
         void checkIfSolved();
-        SudokuTable autosolver();
+        bool returnSolved();
+        SudokuTable* autosolver();
         void save();
         void saveAs();
         void newTable();
+        void setValue();
 
         void switchMode();
         void refreshFileManager();

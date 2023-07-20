@@ -4,7 +4,6 @@
 #ifndef WAVECOLLAPSESUDOKUSOLVER_SUDOKUTABLE_H
 #define WAVECOLLAPSESUDOKUSOLVER_SUDOKUTABLE_H
 
-#include "WFC.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -37,8 +36,9 @@ class SudokuTable {
         std::vector<int> findRowIndexes(int &index) const;
         std::vector<int> findColIndexes(int &index) const;
 
-        TileList table;
-        WFC waveFunction;
+        TileList table; // I don't care anymore
+
+    friend class InputWindow;
 
     // ---------- FRIEND TEST SECTION ---------- //
         // ----- defaultCtorSuite ----- //
