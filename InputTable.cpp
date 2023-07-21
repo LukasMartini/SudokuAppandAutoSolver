@@ -53,7 +53,7 @@ void InputTable::setCurrentTable(SudokuTable* newTable) {
 
         if (this->currentTable->getTile(it.first).isSet) { // Handles values that can't be changed.
             this->tileInputBoxes[it.first]->setStyleSheet(this->setValueSS);
-            this->tileInputBoxes[it.first]->setEnabled(false); // TODO: consider a special stylesheet for these boxes to avoid confusion.
+            this->tileInputBoxes[it.first]->setEnabled(false);
         }
     }
 }

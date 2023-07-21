@@ -201,12 +201,15 @@ void InputWindow::checkIfSolved() {
 }
 
 bool InputWindow::returnSolved() {
+    this->save();
     for (int tile = 0; tile < 81; tile++) {
-        Tile currentTile = this->displayTable->currentTable->getTile(tile);
-        if (currentTile.value >= 1 && currentTile.value <= 9) {
-            for (auto &section: currentTile.adjacencies) {
-                std::set<int> currentAdj;
-                std::copy(section.begin(), section.end(), std::inserter(currentAdj, currentAdj.end()));
+        Tile currentTile = this->displayTable->currentTable->getTile(tile); // Increases brevity in the code below.
+        if (currentTile.value >= 1 && currentTile.value <= 9) { // If the current value is a valid, single value...
+            for (auto &section: currentTile.adjacencies) { // For each of the adjacencies
+                std::set<int> currentAdj; // Create a set of the values in the current adjacencies.
+                for (auto& value : section) {
+                    currentAdj.insert(this->displayTable->currentTable->getTile(value).value);
+                }
                 if (section.size() != currentAdj.size()) {
                     return false;
                 }
