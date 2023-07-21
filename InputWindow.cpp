@@ -226,7 +226,7 @@ SudokuTable* InputWindow::autosolver() {
     // Implementation:
 
     if (this->currentFileName.empty()) {
-        this->saveAs(); // TODO: fix crash on cancelling the saveAs.
+        this->saveAs();
         return this->displayTable->currentTable;
     }
     bool doIRunWFC = false;
