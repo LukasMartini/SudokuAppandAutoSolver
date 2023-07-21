@@ -52,6 +52,7 @@ void InputTable::setCurrentTable(SudokuTable* newTable) {
         }
 
         if (this->currentTable->getTile(it.first).isSet) { // Handles values that can't be changed.
+            this->tileInputBoxes[it.first]->setStyleSheet(this->setValueSS);
             this->tileInputBoxes[it.first]->setEnabled(false); // TODO: consider a special stylesheet for these boxes to avoid confusion.
         }
     }
@@ -97,7 +98,7 @@ int InputTable::returnUpdatedTileValue(const QString& newVal) {
         box->setStyleSheet(this->settingSS);
         box->setText(newSetValue);
     } else if (this->settingMode) { // NOTE: this should run if this->validateLength returns true. It was not included for brevity.
-        box->setStyleSheet(this->settingSS);
+        box->isEnabled() ? box->setStyleSheet(this->settingSS) : box->setStyleSheet(this->setValueSS);
     } else {
         box->setStyleSheet(this->possibilitiesSS);
         std::string sortableNewVal = newVal.toStdString(); // Had bad access issues, just converted to string instead.

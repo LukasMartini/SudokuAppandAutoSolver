@@ -127,6 +127,8 @@ InputWindow::InputWindow() {
     connect(cmdNewFile, &QShortcut::activated, this, &InputWindow::newTable);
     auto* cmdSetValue = new QShortcut(QKeySequence(QString ("Ctrl+E")), this);
     connect(cmdSetValue, &QShortcut::activated, this, &InputWindow::setValue);
+    auto* cmdClearSets = new QShortcut(QKeySequence(QString ("Ctrl+Shift+R")), this);
+    connect(cmdClearSets, &QShortcut::activated, this, &InputWindow::clearSets);
 
     // ----- General Setup ----- //
     this->currentFileName = "";
@@ -333,12 +335,16 @@ void InputWindow::setValue() {
         if (it.second->hasFocus()) {
             doesAnythingHaveFocus = true;
             this->save();
-            if (std::to_string(this->displayTable->currentTable->table.at(it.first).value).length() == 1) { // TODO: issues with possibilities. (swaps back to set mode when command is run, doesn't change display type.)
+            if (std::to_string(this->displayTable->currentTable->table.at(it.first).value).length() == 1) {
                 this->displayTable->currentTable->table.at(it.first).isSet = true;
                 this->displayTable->currentTable->table.at(it.first).displayPossibilities = false;
+                it.second->setValidator(this->displayTable->forceTheseValuesWhenSetting);
+                it.second->setStyleSheet(this->displayTable->settingSS);
+                this->displayTable->settingMode = true;
                 this->save();
             } else {
                 QMessageBox::warning(this, "Warning", "The tile to be set must only have one possibility.", QMessageBox::Ok);
+                return;
             }
         }
     }
@@ -346,6 +352,13 @@ void InputWindow::setValue() {
         QMessageBox::warning(this, "Warning", "No tiles are selected.", QMessageBox::Ok);
     } else {
         this->displayTable->setCurrentTable(this->displayTable->currentTable);
+    }
+}
+
+void InputWindow::clearSets() {
+    for (auto& it : this->displayTable->tileInputBoxes) {
+        it.second->setEnabled(true);
+        this->displayTable->currentTable->table.at(it.first).isSet = false;
     }
 }
 

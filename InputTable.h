@@ -50,6 +50,12 @@ class InputTable : public QWidget{
                                "width : 50px;"
                                "color : black;"
                                "font-size : 20px"};
+        const QString setValueSS { "border : 2px solid black;"
+                                   "background : white;"
+                                   "height : 50px;"
+                                   "width : 50px;"
+                                   "color : red;"
+                                   "font-size : 20px"};
         const QRegularExpression possibilitiesRE {"^[1-9]{0,10}$"};
         const QString possibilitiesSS { "border : 2px solid black;"
                                   "background : white;"

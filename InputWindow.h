@@ -28,6 +28,7 @@ class InputWindow : public QMainWindow{
         void saveAs();
         void newTable();
         void setValue();
+        void clearSets();
 
         void switchMode();
         void refreshFileManager();
