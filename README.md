@@ -1,6 +1,6 @@
 # WaveCollapseSudokuSolver
 
-Command List Reference:
+# Command List Reference:
 - Ctrl+S: Saves the file.
 - Ctrl+Shift+S: Saves the contents of the current table into a new file.
 - Ctrl+O: Opens the file browser.
@@ -9,6 +9,8 @@ Command List Reference:
 - Ctrl+E: Sets a value, making it un-editable.
 - Ctrl+N: Creates a new file.
 
+
+# A Note for Anyone Here
 Hello,
 
 This project was mostly as a fun way for me to improve with Qt6 and C++ in general, so it is a bit rough around the edges.
